@@ -42,3 +42,16 @@ flutter:
 #      fonts:
 #        - asset: fonts/FiraMono-Bold.ttf
 #        - asset: fonts/FiraMono-Regular.ttf
+  fonts:
+    - family: PatrickHand
+      fonts:
+        - asset: assets/fonts/PatrickHand-Regular.ttf
+    - family: FiraMono
+      fonts:
+        - asset: assets/fonts/FiraMono-Bold.ttf
+        - asset: assets/fonts/FiraMono-Regular.ttf
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/Fredoka-SemiBold.ttf
+        - asset: assets/fonts/Fredoka-Regular.ttf
+        - asset: assets/fonts/Fredoka-Medium.ttf
