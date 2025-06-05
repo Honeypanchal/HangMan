@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "568972077157",
+    "project_id": "wordscue-f227f",
+    "storage_bucket": "wordscue-f227f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:568972077157:android:9581ad6d32df24c9c1be8c",
+        "android_client_info": {
+          "package_name": "com.ext.wordscue"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkaerJ_lYP7ubFk1SQf2jvjuDdAXyC2Ak"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

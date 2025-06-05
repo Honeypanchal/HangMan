@@ -1,10 +1,17 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hangman/screens/Splash_Screen1.dart';
 import 'package:flutter_hangman/screens/home_screen.dart';
 import 'package:flutter_hangman/screens/score_screen.dart';
 import 'package:flutter_hangman/utilities/constants.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+
+  );
+
   runApp(const MainApp());
 }
 
@@ -19,6 +26,8 @@ class MainApp extends StatelessWidget {
       DeviceOrientation.portraitDown,
     ]);
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: SplashScreen(),
       theme: ThemeData.dark().copyWith(
         tooltipTheme: TooltipThemeData(
           decoration: BoxDecoration(
@@ -35,11 +44,11 @@ class MainApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF421b9b),
         textTheme: Theme.of(context).textTheme.apply(fontFamily: 'PatrickHand'),
       ),
-      initialRoute: 'homePage',
-      routes: {
-        'homePage': (context) => HomeScreen(),
-        'scorePage': (context) => const ScoreScreen(),
-      },
+      // initialRoute: 'homePage',
+      // routes: {
+      //   'homePage': (context) => HomeScreen(),
+      //   'scorePage': (context) => const ScoreScreen(),
+      // },
     );
   }
 }
