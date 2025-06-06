@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_hangman/screens/Splash_Screen2.dart';
 import 'package:video_player/video_player.dart';
@@ -33,12 +32,10 @@ class _SplashScreenState extends State<SplashScreen> {
         _navigated = true;
 
         // ✅ Initialize HomeController to trigger background music
-        // final homeController = Get.put(HomeController());
-        // homeController.playBackgroundMusic(); // optional: manually start right away
+
 
         Future.delayed(Duration(milliseconds: 200), () {
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>StartScreen()));
-        });
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>StartScreen()));        });
       }
     });
   }
@@ -54,23 +51,16 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: _controller.value.isInitialized
-          ? Stack(
-        children: [
-          SizedBox.expand(
-            child: FittedBox(
-              fit: BoxFit.cover,
-              child: SizedBox(
-                width: _controller.value.size.width,
-                height: _controller.value.size.height,
-                child: VideoPlayer(_controller),
-              ),
-            ),
-          ),
-        ],
+          ? FittedBox(
+        fit: BoxFit.fill,
+        child: SizedBox(
+          width: _controller.value.size.width,
+          height: _controller.value.size.height,
+          child: VideoPlayer(_controller),
+        ),
       )
           : const Center(child: CircularProgressIndicator()),
     );
   }
-
 }
 

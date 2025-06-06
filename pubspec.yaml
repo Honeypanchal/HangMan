@@ -55,3 +55,23 @@ flutter:
         - asset: assets/fonts/Fredoka-SemiBold.ttf
         - asset: assets/fonts/Fredoka-Regular.ttf
         - asset: assets/fonts/Fredoka-Medium.ttf
+    - family: NexaRustExtras
+      fonts:
+        - asset: assets/fonts/NexaRustExtras-Free.otf
+
+    - family: NexaRustHandmade
+      fonts:
+        - asset: assets/fonts/NexaRustHandmade-Extended.otf
+
+    - family: NexaRustSans
+      fonts:
+        - asset: assets/fonts/NexaRustSans-Black.otf
+
+    - family: NexaRustScript
+      fonts:
+        - asset: assets/fonts/NexaRustScriptL-0.otf
+
+    - family: NexaRustSlab
+      fonts:
+        - asset: assets/fonts/NexaRustSlab-BlackShadow01.otf
+

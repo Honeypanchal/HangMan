@@ -5,13 +5,35 @@ import 'package:flutter_hangman/screens/Splash_Screen1.dart';
 import 'package:flutter_hangman/screens/home_screen.dart';
 import 'package:flutter_hangman/screens/score_screen.dart';
 import 'package:flutter_hangman/utilities/constants.dart';
+import 'package:flutter/foundation.dart';
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
+  print("🔄 Initializing Firebase...");
 
-  );
+  if (Firebase.apps.isEmpty) {
+    try {
+      if (kIsWeb) {
+        await Firebase.initializeApp(
+          options: const FirebaseOptions(
+            apiKey: 'AIzaSyCkaerJ_lYP7ubFk1SQf2jvjuDdAXyC2Ak',
+            appId: '1:568972077157:web:fa0babb05765507cc1be8c',
+            messagingSenderId: "568972077157",
+            authDomain: "wordscue-f227f.firebaseapp.com",
+            databaseURL: "https://wordscue-f227f-default-rtdb.firebaseio.com",
+            projectId: "wordscue-f227f",
+          ),
+        );
+      } else {
+        await Firebase.initializeApp();
+      }
+      print("✅ Firebase initialized");
+    } catch (e) {
+      print("❌ Firebase error: $e");
+    }
+  }
 
+  print("🚀 Running app...");
   runApp(const MainApp());
 }
 
@@ -28,6 +50,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
+
       theme: ThemeData.dark().copyWith(
         tooltipTheme: TooltipThemeData(
           decoration: BoxDecoration(

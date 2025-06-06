@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hangman/screens/DashBoeard.dart';
+import 'package:flutter_hangman/screens/home_screen.dart';
 
 class Usernamescreen extends StatefulWidget {
   const Usernamescreen({super.key});
@@ -36,17 +38,22 @@ class _UsernamescreenState extends State<Usernamescreen> {
         'username': username,
       });
 
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("User saved successfully!")),
       );
 
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>Dashboeard()));
+
       // TODO: Navigate to next screen here
+
     } catch (e) {
       print("🔥 Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: $e")),
       );
     }
+
   }
 
   @override
