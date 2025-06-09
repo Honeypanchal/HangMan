@@ -3,6 +3,7 @@ import 'package:flutter_hangman/components/Settings_screen.dart';
 import 'package:flutter_hangman/screens/CateGoriesScreen.dart';
 import 'package:flutter_hangman/screens/LeaderBoard.dart';
 
+import '../components/AudioManager.dart';
 import 'DailyRewardScreen.dart';
 
 class Dashboeard extends StatefulWidget {
@@ -13,6 +14,15 @@ class Dashboeard extends StatefulWidget {
 }
 
 class _DashboeardState extends State<Dashboeard> {
+  void _playClickSound() {
+    AudioManager().playbuttonSound(); // use the global audio manager
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,6 +68,7 @@ class _DashboeardState extends State<Dashboeard> {
                       const SizedBox(height: 15),
                       GestureDetector(
                           onTap: (){
+                            _playClickSound();
                             Navigator.push(context,MaterialPageRoute(builder: (context)=>SettingsScreen()));
                           },
                           child: Image.asset('assets/images/Settings.png', height: 60)),
@@ -70,6 +81,7 @@ class _DashboeardState extends State<Dashboeard> {
                       const SizedBox(height: 15),
                   GestureDetector(
                     onTap: (){
+                      _playClickSound();
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>DailyRewardPage()));
                     },
                     child:
@@ -77,6 +89,7 @@ class _DashboeardState extends State<Dashboeard> {
                       const SizedBox(height: 15),
                       GestureDetector(
                           onTap: (){
+                            _playClickSound();
                             Navigator.push(context, MaterialPageRoute(builder: (context)=>CategoriesScreen()));
                           },
                           child: Image.asset('assets/images/Catagories.png', height: 60)),

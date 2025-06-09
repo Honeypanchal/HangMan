@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_hangman/screens/UserNameScreen.dart';
 import 'package:flutter_hangman/screens/DashBoeard.dart';
 
+import '../components/AudioManager.dart';
+
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
 
@@ -10,11 +12,17 @@ class StartScreen extends StatefulWidget {
   State<StartScreen> createState() => _StartScreenState();
 }
 
-class _StartScreenState extends State<StartScreen> {
+class _StartScreenState extends State<StartScreen>  with WidgetsBindingObserver   {
+  final audioManager = AudioManager();
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
+    audioManager.init().then((_) {
+      audioManager.playBackgroundMusic();
+    });
     // Wait 2 seconds and then decide which screen to go to
     Future.delayed(const Duration(seconds: 2), () {
       final currentUser = FirebaseAuth.instance.currentUser;
@@ -34,6 +42,25 @@ class _StartScreenState extends State<StartScreen> {
       }
     });
   }
+
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    audioManager.stopBackgroundMusic();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      audioManager.pauseBackgroundMusic(); // Pause when leaving
+    } else if (state == AppLifecycleState.resumed) {
+      audioManager.playBackgroundMusic(); // Resume when returning
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
