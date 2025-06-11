@@ -36,7 +36,10 @@ class _UsernamescreenState extends State<Usernamescreen> {
       await _dbRef.child('users').child(userId!).set({
         'userId': userId,
         'username': username,
+        'difficulty': 'beginner', // default
+        'category': 'general knowledge', // default
       });
+
 
 
       ScaffoldMessenger.of(context).showSnackBar(

@@ -1,5 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hangman/screens/game_screen.dart';
+import 'package:flutter_hangman/screens/home_screen.dart';
 
 import 'CateGoriesScreen.dart';
 
@@ -57,11 +61,20 @@ class _WordscueLevelScreenState extends State<WordscueLevelScreen> {
                         children: [
                           GestureDetector(
                             onTap: () {
-                              print("Beginner pressed");
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) =>CategoriesScreen() ),
-                              );
+                              onTap: () async {
+                                final uid = FirebaseAuth.instance.currentUser?.uid;
+                                if (uid != null) {
+                                  await FirebaseDatabase.instance.ref().child('users/$uid').update({
+                                    'difficulty': 'beginner',
+                                  });
+                                }
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => GameScreen()));
+
+                              };
+
+
 
                             },
                             child: Image.asset(
@@ -74,9 +87,24 @@ class _WordscueLevelScreenState extends State<WordscueLevelScreen> {
                           SizedBox(height: 12),
 
                           GestureDetector(
-                            onTap: () {
-                              print("Easy pressed");
-                            },
+
+                              onTap: () async {
+                                final uid = FirebaseAuth.instance.currentUser?.uid;
+                                if (uid != null) {
+                                  await FirebaseDatabase.instance.ref().child('users/$uid').update({
+                                    'difficulty': 'easy',
+                                  });
+                                }
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => GameScreen()),
+                                );
+                              },
+
+
+
+
+
                             child: Image.asset(
                               'assets/images/Easy.png',
                               width: 250,
@@ -88,8 +116,23 @@ class _WordscueLevelScreenState extends State<WordscueLevelScreen> {
 
                           GestureDetector(
                             onTap: () {
-                              print("Medium pressed");
+                              onTap: () async {
+                                final uid = FirebaseAuth.instance.currentUser?.uid;
+                                if (uid != null) {
+                                  await FirebaseDatabase.instance.ref().child('users/$uid').update({
+                                    'difficulty': 'medium',
+                                  });
+                                }
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) =>GameScreen()),
+                                );
+                              };
+
+
+
                             },
+
                             child: Image.asset(
                               'assets/images/Medium.png',
                               width: 250,
@@ -101,8 +144,23 @@ class _WordscueLevelScreenState extends State<WordscueLevelScreen> {
 
                           GestureDetector(
                             onTap: () {
-                              print("Expert pressed");
+                              onTap: () async {
+                                final uid = FirebaseAuth.instance.currentUser?.uid;
+                                if (uid != null) {
+                                  await FirebaseDatabase.instance.ref().child('users/$uid').update({
+                                    'difficulty': 'hard',
+                                  });
+                                }
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) =>GameScreen()),
+                                );
+                              };
+
+
+
                             },
+
                             child: Image.asset(
                               'assets/images/Expert.png',
                               width: 250,

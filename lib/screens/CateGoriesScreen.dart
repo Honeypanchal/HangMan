@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hangman/screens/DashBoeard.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -66,31 +69,63 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     ),
                     itemBuilder: (context, index) {
                       final category = categories[index];
-                      return Column(
-                        children: [
-                          Expanded(
-                            child: Image.asset(category['image']!, height:100,width:100,fit: BoxFit.contain),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            category['title']!,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Fredoka',
-                              fontSize: 12,
-                              height: 1.2,
+                      return GestureDetector(
+                        onTap: () async {
+                          final uid = FirebaseAuth.instance.currentUser?.uid;
+                          if (uid != null) {
+                            await FirebaseDatabase.instance.ref().child('users/$uid').update({
+                              'category': category['title']!,
+                            });
+                          }
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Category set to ${category['title']}")),
+                          );
+                        },
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Image.asset(category['image']!, height: 100, width: 100, fit: BoxFit.contain),
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Text(
+                              category['title']!,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Fredoka',
+                                fontSize: 12,
+                                height: 1.2,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       );
                     },
+
                   ),
 
                 ],
               ),
             ),
           ),
+          GestureDetector(
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context)=>Dashboeard()));
+            },
+            child: Container(
+              height: 60,
+              width: 250,
+              decoration: BoxDecoration(
+                color: Colors.brown,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white,width: 2),
+
+              ),
+
+              child: Text("Save"),),
+          )
+
         ],
       ),
     );

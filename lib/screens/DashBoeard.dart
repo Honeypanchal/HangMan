@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hangman/components/Settings_screen.dart';
 import 'package:flutter_hangman/screens/CateGoriesScreen.dart';
 import 'package:flutter_hangman/screens/LeaderBoard.dart';
+import 'package:flutter_hangman/screens/LevalScreen.dart';
 
 class Dashboeard extends StatefulWidget {
   const Dashboeard({super.key});
@@ -52,7 +53,11 @@ class _DashboeardState extends State<Dashboeard> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Image.asset('assets/images/play_button.png', height: 60),
+                      GestureDetector(
+                          onTap: (){
+                            Navigator.push(context,MaterialPageRoute(builder: (context)=>WordscueLevelScreen()) );
+                          },
+                          child: Image.asset('assets/images/play_button.png', height: 60)),
                       const SizedBox(height: 15),
                       GestureDetector(
                           onTap: (){
