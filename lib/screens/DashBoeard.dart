@@ -4,6 +4,8 @@ import 'package:flutter_hangman/screens/CateGoriesScreen.dart';
 import 'package:flutter_hangman/screens/LeaderBoard.dart';
 import 'package:flutter_hangman/screens/LevalScreen.dart';
 
+import 'DailyRewardScreen.dart';
+
 class Dashboeard extends StatefulWidget {
   const Dashboeard({super.key});
 
@@ -58,6 +60,8 @@ class _DashboeardState extends State<Dashboeard> {
                             Navigator.push(context,MaterialPageRoute(builder: (context)=>WordscueLevelScreen()) );
                           },
                           child: Image.asset('assets/images/play_button.png', height: 60)),
+                    children: <Widget>[
+                      Image.asset('assets/images/play_button.png', height: 60),
                       const SizedBox(height: 15),
                       GestureDetector(
                           onTap: (){
@@ -71,7 +75,12 @@ class _DashboeardState extends State<Dashboeard> {
                           },
                           child: Image.asset('assets/images/Leader_Board.png', height: 60)),
                       const SizedBox(height: 15),
-                      Image.asset('assets/images/Daily_Reward.png', height: 60),
+                  GestureDetector(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>DailyRewardPage()));
+                    },
+                    child:
+                      Image.asset('assets/images/Daily_Reward.png', height: 60)),
                       const SizedBox(height: 15),
                       GestureDetector(
                           onTap: (){

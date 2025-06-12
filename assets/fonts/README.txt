@@ -1,43 +1,26 @@
-Fredoka Variable Font
-=====================
+Lexend Deca Variable Font
+=========================
 
-This download contains Fredoka as both a variable font and static fonts.
+This download contains Lexend Deca as both a variable font and static fonts.
 
-Fredoka is a variable font with these axes:
-  wdth
+Lexend Deca is a variable font with this axis:
   wght
 
 This means all the styles are contained in a single file:
-  Fredoka-VariableFont_wdth,wght.ttf
+  LexendDeca-VariableFont_wght.ttf
 
 If your app fully supports variable fonts, you can now pick intermediate styles
 that aren’t available as static fonts. Not all apps support variable fonts, and
-in those cases you can use the static font files for Fredoka:
-  static/Fredoka_Condensed-Light.ttf
-  static/Fredoka_Condensed-Regular.ttf
-  static/Fredoka_Condensed-Medium.ttf
-  static/Fredoka_Condensed-SemiBold.ttf
-  static/Fredoka_Condensed-Bold.ttf
-  static/Fredoka_SemiCondensed-Light.ttf
-  static/Fredoka_SemiCondensed-Regular.ttf
-  static/Fredoka_SemiCondensed-Medium.ttf
-  static/Fredoka_SemiCondensed-SemiBold.ttf
-  static/Fredoka_SemiCondensed-Bold.ttf
-  static/Fredoka-Light.ttf
-  static/Fredoka-Regular.ttf
-  static/Fredoka-Medium.ttf
-  static/Fredoka-SemiBold.ttf
-  static/Fredoka-Bold.ttf
-  static/Fredoka_SemiExpanded-Light.ttf
-  static/Fredoka_SemiExpanded-Regular.ttf
-  static/Fredoka_SemiExpanded-Medium.ttf
-  static/Fredoka_SemiExpanded-SemiBold.ttf
-  static/Fredoka_SemiExpanded-Bold.ttf
-  static/Fredoka_Expanded-Light.ttf
-  static/Fredoka_Expanded-Regular.ttf
-  static/Fredoka_Expanded-Medium.ttf
-  static/Fredoka_Expanded-SemiBold.ttf
-  static/Fredoka_Expanded-Bold.ttf
+in those cases you can use the static font files for Lexend Deca:
+  static/LexendDeca-Thin.ttf
+  static/LexendDeca-ExtraLight.ttf
+  static/LexendDeca-Light.ttf
+  static/LexendDeca-Regular.ttf
+  static/LexendDeca-Medium.ttf
+  static/LexendDeca-SemiBold.ttf
+  static/LexendDeca-Bold.ttf
+  static/LexendDeca-ExtraBold.ttf
+  static/LexendDeca-Black.ttf
 
 Get started
 -----------

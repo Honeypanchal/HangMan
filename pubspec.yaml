@@ -22,6 +22,7 @@ dependencies:
   firebase_core:
   firebase_auth:
   firebase_database:
+  shared_preferences:
   audioplayers:
 dev_dependencies:
   flutter_test:
@@ -35,6 +36,7 @@ flutter:
     - assets/images/
     - res/
     - assets/audio/Splash_screen.mp4
+    - assets/audio/
 #  fonts:
 #    - family: PatrickHand
 #      fonts:
@@ -56,6 +58,12 @@ flutter:
         - asset: assets/fonts/Fredoka-SemiBold.ttf
         - asset: assets/fonts/Fredoka-Regular.ttf
         - asset: assets/fonts/Fredoka-Medium.ttf
+    - family:  LexendDeca
+      fonts:
+        - asset: assets/fonts/LexendDeca-Regular.ttf
+        - asset: assets/fonts/LexendDeca-Bold.ttf
+          weight: 700
+
     - family: NexaRustExtras
       fonts:
         - asset: assets/fonts/NexaRustExtras-Free.otf
