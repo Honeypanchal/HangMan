@@ -4,6 +4,7 @@ import 'package:flutter_hangman/screens/CateGoriesScreen.dart';
 import 'package:flutter_hangman/screens/LeaderBoard.dart';
 
 import '../components/AudioManager.dart';
+import '../components/DialogueBox.dart';
 import 'DailyRewardScreen.dart';
 
 class Dashboeard extends StatefulWidget {
@@ -64,7 +65,12 @@ class _DashboeardState extends State<Dashboeard> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      Image.asset('assets/images/play_button.png', height: 60),
+                      GestureDetector(
+                      onTap: (){
+                _playClickSound();
+                GameOverDialog.show(context, onRetry: () {  }, onExit: () {  });
+                },
+                  child: Image.asset('assets/images/play_button.png', height: 60),),
                       const SizedBox(height: 15),
                       GestureDetector(
                           onTap: (){
