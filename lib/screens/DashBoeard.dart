@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hangman/components/Settings_screen.dart';
 import 'package:flutter_hangman/screens/CateGoriesScreen.dart';
 import 'package:flutter_hangman/screens/LeaderBoard.dart';
+import 'package:flutter_hangman/screens/LevalScreen.dart';
 
 import '../components/AudioManager.dart';
 import '../components/DialogueBox.dart';
@@ -64,6 +65,12 @@ class _DashboeardState extends State<Dashboeard> {
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GestureDetector(
+                          onTap: (){
+                            Navigator.push(context,MaterialPageRoute(builder: (context)=>WordscueLevelScreen()) );
+                          },
+                          child: Image.asset('assets/images/play_button.png', height: 60)),
                     children: <Widget>[
                       GestureDetector(
                       onTap: (){

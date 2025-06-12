@@ -11,10 +11,11 @@ import 'package:flutter_hangman/utilities/user_scores.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
-class GameScreen extends StatefulWidget {
-  const GameScreen({super.key, required this.hangmanObject});
 
-  final HangmanWords hangmanObject;
+import '../utilities/word_loader.dart';
+
+class GameScreen extends StatefulWidget {
+  const GameScreen({super.key});
 
   @override
   State<GameScreen> createState() => _GameScreenState();
@@ -22,22 +23,52 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   final database = score_database.openDB();
+
+  late HangmanWords hangmanObject;
+  bool isLoading = true;
+
   int lives = 5;
   Alphabet englishAlphabet = Alphabet();
+
+
   late String word;
   late String hiddenWord;
   List<String> wordList = [];
   List<int> hintLetters = [];
   late List<bool> buttonStatus;
   late bool hintStatus;
+
   int hangState = 0;
   int wordCount = 0;
   bool finishedGame = false;
   bool resetGame = false;
 
+  @override
+  void initState() {
+    super.initState();
+    hintStatus = true;
+    _loadWordsFromFirebase(); // This will call initWords() after loading
+  }
+
+
+  Future<void> _loadWordsFromFirebase() async {
+    try {
+      final words = await fetchWordsFromFirebase();
+      hangmanObject = HangmanWords(words);
+      initWords();
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      print("Error loading words: $e");
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (_) => const HomeScreen()));
+    }
+  }
+
   void newGame() {
     setState(() {
-      widget.hangmanObject.resetWords();
+      hangmanObject.resetWords();
       englishAlphabet = Alphabet();
       lives = 5;
       wordCount = 0;
@@ -62,7 +93,7 @@ class _GameScreenState extends State<GameScreen> {
   void returnHomePage() {
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (context) => HomeScreen()),
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
       ModalRoute.withName('homePage'),
     );
   }
@@ -70,19 +101,20 @@ class _GameScreenState extends State<GameScreen> {
   void initWords() {
     finishedGame = false;
     resetGame = false;
-    hintStatus = true;
+
     hangState = 0;
-    buttonStatus = List.generate(26, (index) {
-      return true;
-    });
+    buttonStatus = List.generate(26, (_) => true);
     wordList = [];
     hintLetters = [];
-    word = widget.hangmanObject.getWord();
-    if (word.isNotEmpty) {
-      hiddenWord = widget.hangmanObject.getHiddenWord(word.length);
-    } else {
+
+    final newWord = hangmanObject.getWord();
+    if (newWord == null || newWord.isEmpty) {
       returnHomePage();
+      return;
     }
+
+    word = newWord;
+    hiddenWord = hangmanObject.getHiddenWord(word.length);
 
     for (int i = 0; i < word.length; i++) {
       wordList.add(word[i]);
@@ -126,51 +158,46 @@ class _GameScreenState extends State<GameScreen> {
         if (lives < 1) {
           if (wordCount > 0) {
             Score score = Score(
-                id: 1,
-                scoreDate: DateTime.now().toString(),
-                userScore: wordCount);
+              id: 1,
+              scoreDate: DateTime.now().toString(),
+              userScore: wordCount,
+            );
             score_database.manipulateDatabase(score, database);
           }
           Alert(
-              style: kGameOverAlertStyle,
-              context: context,
-              title: "Game Over!",
-              desc: "Your score is $wordCount",
-              buttons: [
-                DialogButton(
-                  color: kDialogButtonColor,
-                  onPressed: () => returnHomePage(),
-                  child: Icon(
-                    MdiIcons.home,
-                    size: 30.0,
-                  ),
-                ),
-                DialogButton(
-                  onPressed: () {
-                    newGame();
-                    Navigator.pop(context);
-                  },
-                  color: kDialogButtonColor,
-                  child: Icon(MdiIcons.refresh, size: 30.0),
-                ),
-              ]).show();
+            style: kGameOverAlertStyle,
+            context: context,
+            title: "Game Over!",
+            desc: "Your score is $wordCount",
+            buttons: [
+              DialogButton(
+                color: kDialogButtonColor,
+                onPressed: returnHomePage,
+                child: Icon(MdiIcons.home, size: 30.0),
+              ),
+              DialogButton(
+                onPressed: () {
+                  newGame();
+                  Navigator.pop(context);
+                },
+                color: kDialogButtonColor,
+                child: Icon(MdiIcons.refresh, size: 30.0),
+              ),
+            ],
+          ).show();
         } else {
           Alert(
             context: context,
             style: kFailedAlertStyle,
             type: AlertType.error,
             title: word,
-//            desc: "You Lost!",
             buttons: [
               DialogButton(
                 radius: BorderRadius.circular(10),
                 width: 127,
                 color: kDialogButtonColor,
                 height: 52,
-                child: Icon(
-                  MdiIcons.arrowRightThick,
-                  size: 30.0,
-                ),
+                child: Icon(MdiIcons.arrowRightThick, size: 30.0),
                 onPressed: () {
                   setState(() {
                     Navigator.pop(context);
@@ -191,17 +218,13 @@ class _GameScreenState extends State<GameScreen> {
           style: kSuccessAlertStyle,
           type: AlertType.success,
           title: word,
-//          desc: "You guessed it right!",
           buttons: [
             DialogButton(
               radius: BorderRadius.circular(10),
               width: 127,
               color: kDialogButtonColor,
               height: 52,
-              child: Icon(
-                MdiIcons.arrowRightThick,
-                size: 30.0,
-              ),
+              child: Icon(MdiIcons.arrowRightThick, size: 30.0),
               onPressed: () {
                 setState(() {
                   wordCount += 1;
@@ -214,12 +237,6 @@ class _GameScreenState extends State<GameScreen> {
         ).show();
       }
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    initWords();
   }
 
   @override
@@ -309,7 +326,9 @@ class _GameScreenState extends State<GameScreen> {
                                             .indexOf(
                                                 wordList[hintLetters[rand]]));
                                         hintStatus = false;
-                                      }
+
+
+                                }
                                     : null,
                               ),
                             ),
