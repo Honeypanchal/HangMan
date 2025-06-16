@@ -19,9 +19,14 @@ class LoadingScreenState extends State<LoadingScreen> {
   }
 
   void queryScores() async {
-    final database = score_database.openDB();
-    List<Score> queryResult = await score_database.scores(database);
-    goToScoreScreen(queryResult);
+    try {
+      List<Score> queryResult = await score_database.scores();
+      goToScoreScreen(queryResult);
+    } catch (e) {
+      print("Error querying scores: $e");
+      // Handle error (e.g., show error UI or retry)
+      goToScoreScreen([]); // Fallback to empty list
+    }
   }
 
   void goToScoreScreen(List<Score> queryResult) {
@@ -39,10 +44,11 @@ class LoadingScreenState extends State<LoadingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
+    return Scaffold(
+      backgroundColor: Colors.white, // Ensure visible background
+      body: const Center(
         child: SpinKitDoubleBounce(
-          color: Colors.white,
+          color: Colors.blue, // Adjust color for visibility
           size: 100.0,
         ),
       ),

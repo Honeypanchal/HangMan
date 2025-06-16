@@ -56,39 +56,42 @@ class _DashboeardState extends State<Dashboeard> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       GestureDetector(
-                          onTap: (){
-                            Navigator.push(context,MaterialPageRoute(builder: (context)=>WordscueLevelScreen()) );
-                          },
-                          child: Image.asset('assets/images/play_button.png', height: 60)),
-                    children: <Widget>[
-                      Image.asset('assets/images/play_button.png', height: 60),
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => WordscueLevelScreen()));
+                        },
+                        child: Image.asset('assets/images/play_button.png', height: 60),
+                      ),
                       const SizedBox(height: 15),
                       GestureDetector(
-                          onTap: (){
-                            Navigator.push(context,MaterialPageRoute(builder: (context)=>SettingsScreen()));
-                          },
-                          child: Image.asset('assets/images/Settings.png', height: 60)),
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen()));
+                        },
+                        child: Image.asset('assets/images/Settings.png', height: 60),
+                      ),
                       const SizedBox(height: 15),
                       GestureDetector(
-                          onTap: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>LeaderBoard()));
-                          },
-                          child: Image.asset('assets/images/Leader_Board.png', height: 60)),
-                      const SizedBox(height: 15),
-                  GestureDetector(
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>DailyRewardPage()));
-                    },
-                    child:
-                      Image.asset('assets/images/Daily_Reward.png', height: 60)),
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => LeaderBoard()));
+                        },
+                        child: Image.asset('assets/images/Leader_Board.png', height: 60),
+                      ),
                       const SizedBox(height: 15),
                       GestureDetector(
-                          onTap: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>CategoriesScreen()));
-                          },
-                          child: Image.asset('assets/images/Catagories.png', height: 60)),
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => DailyRewardPage()));
+                        },
+                        child: Image.asset('assets/images/Daily_Reward.png', height: 60),
+                      ),
+                      const SizedBox(height: 15),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => CategoriesScreen()));
+                        },
+                        child: Image.asset('assets/images/Catagories.png', height: 60),
+                      ),
                     ],
                   ),
+
                 ),
               ),
             ],

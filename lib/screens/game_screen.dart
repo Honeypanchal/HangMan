@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_hangman/components/word_button.dart';
 import 'package:flutter_hangman/screens/home_screen.dart';
@@ -10,8 +9,6 @@ import 'package:flutter_hangman/utilities/score_db.dart' as score_database;
 import 'package:flutter_hangman/utilities/user_scores.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
-
-
 import '../utilities/word_loader.dart';
 
 class GameScreen extends StatefulWidget {
@@ -22,22 +19,18 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
-  final database = score_database.openDB();
-
   late HangmanWords hangmanObject;
   bool isLoading = true;
+  String? errorMessage;
 
   int lives = 5;
   Alphabet englishAlphabet = Alphabet();
-
-
-  late String word;
-  late String hiddenWord;
+  String word = '';
+  String hiddenWord = '';
   List<String> wordList = [];
   List<int> hintLetters = [];
   late List<bool> buttonStatus;
   late bool hintStatus;
-
   int hangState = 0;
   int wordCount = 0;
   bool finishedGame = false;
@@ -47,9 +40,9 @@ class _GameScreenState extends State<GameScreen> {
   void initState() {
     super.initState();
     hintStatus = true;
-    _loadWordsFromFirebase(); // This will call initWords() after loading
+    buttonStatus = List.generate(26, (_) => true);
+    _loadWordsFromFirebase();
   }
-
 
   Future<void> _loadWordsFromFirebase() async {
     try {
@@ -58,11 +51,14 @@ class _GameScreenState extends State<GameScreen> {
       initWords();
       setState(() {
         isLoading = false;
+        errorMessage = null;
       });
     } catch (e) {
       print("Error loading words: $e");
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()));
+      setState(() {
+        isLoading = false;
+        errorMessage = e.toString();
+      });
     }
   }
 
@@ -91,17 +87,12 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void returnHomePage() {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
-      ModalRoute.withName('homePage'),
-    );
+    Navigator.pushNamed(context, '/home');
   }
 
   void initWords() {
     finishedGame = false;
     resetGame = false;
-
     hangState = 0;
     buttonStatus = List.generate(26, (_) => true);
     wordList = [];
@@ -109,7 +100,9 @@ class _GameScreenState extends State<GameScreen> {
 
     final newWord = hangmanObject.getWord();
     if (newWord == null || newWord.isEmpty) {
-      returnHomePage();
+      setState(() {
+        errorMessage = "No words available";
+      });
       return;
     }
 
@@ -126,14 +119,12 @@ class _GameScreenState extends State<GameScreen> {
     if (lives == 0) {
       returnHomePage();
     }
-
     if (finishedGame) {
       setState(() {
         resetGame = true;
       });
       return;
     }
-
     bool check = false;
     setState(() {
       for (int i = 0; i < wordList.length; i++) {
@@ -151,18 +142,17 @@ class _GameScreenState extends State<GameScreen> {
       if (!check) {
         hangState += 1;
       }
-
       if (hangState == 6) {
         finishedGame = true;
         lives -= 1;
         if (lives < 1) {
           if (wordCount > 0) {
             Score score = Score(
-              id: 1,
+              id: null,
               scoreDate: DateTime.now().toString(),
               userScore: wordCount,
             );
-            score_database.manipulateDatabase(score, database);
+            score_database.manipulateDatabase(score);
           }
           Alert(
             style: kGameOverAlertStyle,
@@ -209,7 +199,6 @@ class _GameScreenState extends State<GameScreen> {
           ).show();
         }
       }
-
       buttonStatus[index] = false;
       if (hiddenWord == word) {
         finishedGame = true;
@@ -249,227 +238,212 @@ class _GameScreenState extends State<GameScreen> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        body: SafeArea(
-          child: Column(
-            children: <Widget>[
-              Expanded(
-                  flex: 3,
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(6.0, 8.0, 6.0, 35.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Row(
-                              children: <Widget>[
-                                Stack(
-                                  children: <Widget>[
-                                    Container(
-                                      padding: const EdgeInsets.only(top: 0.5),
-                                      child: IconButton(
-                                        tooltip: 'Lives',
-                                        highlightColor: Colors.transparent,
-                                        splashColor: Colors.transparent,
-                                        iconSize: 39,
-                                        icon: Icon(MdiIcons.heart),
-                                        onPressed: () {},
+        backgroundColor: Colors.blue,
+        body: Stack(
+
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(image: AssetImage("assets/images/background.png"),
+                    fit: BoxFit.cover)
+              )
+            ),
+            SafeArea(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : errorMessage != null
+                  ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Error: $errorMessage",
+                      style: const TextStyle(color: Colors.black, fontSize: 18),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          isLoading = true;
+                          errorMessage = null;
+                        });
+                        _loadWordsFromFirebase();
+                      },
+                      child: const Text("Retry"),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: returnHomePage,
+                      child: const Text("Return to Home"),
+                    ),
+                  ],
+                ),
+              )
+                  : Column(
+                children: <Widget>[
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(6.0, 8.0, 6.0, 35.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Row(
+                                children: <Widget>[
+                                  Stack(
+                                    children: <Widget>[
+                                      Container(
+                                        padding: const EdgeInsets.only(top: 0.5),
+                                        child: IconButton(
+                                          tooltip: 'Lives',
+                                          highlightColor: Colors.transparent,
+                                          splashColor: Colors.transparent,
+                                          iconSize: 39,
+                                          icon: Icon(MdiIcons.heart),
+                                          onPressed: () {},
+                                        ),
                                       ),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          8.7, 7.9, 0, 0.8),
-                                      alignment: Alignment.center,
-                                      child: SizedBox(
-                                        height: 38,
-                                        width: 38,
-                                        child: Center(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(2.0),
-                                            child: Text(
-                                              lives.toString() == "1"
-                                                  ? "I"
-                                                  : lives.toString(),
-                                              style: const TextStyle(
-                                                color: Color(0xFF2C1E68),
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                                fontFamily: 'PatrickHand',
+                                      Container(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            8.7, 7.9, 0, 0.8),
+                                        alignment: Alignment.center,
+                                        child: SizedBox(
+                                          height: 38,
+                                          width: 38,
+                                          child: Center(
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(2.0),
+                                              child: Text(
+                                                lives.toString() == "1"
+                                                    ? "I"
+                                                    : lives.toString(),
+                                                style: const TextStyle(
+                                                  color: Color(0xFF2C1E68),
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontFamily: 'PatrickHand',
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    )
-                                  ],
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                child: Text(
+                                  wordCount == 1 ? "I" : '$wordCount',
+                                  style: kWordCounterTextStyle,
                                 ),
-                              ],
+                              ),
+                              SizedBox(
+                                child: IconButton(
+                                  tooltip: 'Hint',
+                                  iconSize: 39,
+                                  icon: Icon(MdiIcons.lightbulb),
+                                  highlightColor: Colors.transparent,
+                                  splashColor: Colors.transparent,
+                                  onPressed: hintStatus
+                                      ? () {
+                                    if (hintLetters.isNotEmpty) {
+                                      int rand = Random().nextInt(hintLetters.length);
+                                      wordPress(englishAlphabet.alphabet
+                                          .indexOf(wordList[hintLetters[rand]]));
+                                      hintStatus = false;
+                                    }
+                                  }
+                                      : null,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 6,
+                          child: Container(
+                            alignment: Alignment.bottomCenter,
+                            child: FittedBox(
+                              fit: BoxFit.contain,
+                              child: Image.asset(
+                                'images/$hangState.png',
+                                height: 1001,
+                                width: 991,
+                                gaplessPlayback: true,
+                              ),
                             ),
-                            SizedBox(
+                          ),
+                        ),
+                        Expanded(
+                          flex: 5,
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 35.0),
+                            alignment: Alignment.center,
+                            child: FittedBox(
+                              fit: BoxFit.fitWidth,
                               child: Text(
-                                wordCount == 1 ? "I" : '$wordCount',
-                                style: kWordCounterTextStyle,
+                                hiddenWord.toUpperCase(),
+                                style: kWordTextStyle,
                               ),
-                            ),
-                            SizedBox(
-                              child: IconButton(
-                                tooltip: 'Hint',
-                                iconSize: 39,
-                                icon: Icon(MdiIcons.lightbulb),
-                                highlightColor: Colors.transparent,
-                                splashColor: Colors.transparent,
-                                onPressed: hintStatus
-                                    ? () {
-                                        int rand = Random()
-                                            .nextInt(hintLetters.length);
-                                        wordPress(englishAlphabet.alphabet
-                                            .indexOf(
-                                                wordList[hintLetters[rand]]));
-                                        hintStatus = false;
-
-
-                                }
-                                    : null,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 6,
-                        child: Container(
-                          alignment: Alignment.bottomCenter,
-                          child: FittedBox(
-                            fit: BoxFit.contain,
-                            child: Image.asset(
-                              'images/$hangState.png',
-                              height: 1001,
-                              width: 991,
-                              gaplessPlayback: true,
                             ),
                           ),
                         ),
-                      ),
-                      Expanded(
-                        flex: 5,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 35.0),
-                          alignment: Alignment.center,
-                          child: FittedBox(
-                            fit: BoxFit.fitWidth,
-                            child: Text(
-                              hiddenWord,
-                              style: kWordTextStyle,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )),
-              Container(
-                padding: const EdgeInsets.fromLTRB(10.0, 2.0, 8.0, 10.0),
-                child: Table(
-                  defaultVerticalAlignment: TableCellVerticalAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  //columnWidths: {1: FlexColumnWidth(10)},
-                  children: [
-                    TableRow(children: [
-                      TableCell(
-                        child: createButton(0),
-                      ),
-                      TableCell(
-                        child: createButton(1),
-                      ),
-                      TableCell(
-                        child: createButton(2),
-                      ),
-                      TableCell(
-                        child: createButton(3),
-                      ),
-                      TableCell(
-                        child: createButton(4),
-                      ),
-                      TableCell(
-                        child: createButton(5),
-                      ),
-                      TableCell(
-                        child: createButton(6),
-                      ),
-                    ]),
-                    TableRow(children: [
-                      TableCell(
-                        child: createButton(7),
-                      ),
-                      TableCell(
-                        child: createButton(8),
-                      ),
-                      TableCell(
-                        child: createButton(9),
-                      ),
-                      TableCell(
-                        child: createButton(10),
-                      ),
-                      TableCell(
-                        child: createButton(11),
-                      ),
-                      TableCell(
-                        child: createButton(12),
-                      ),
-                      TableCell(
-                        child: createButton(13),
-                      ),
-                    ]),
-                    TableRow(children: [
-                      TableCell(
-                        child: createButton(14),
-                      ),
-                      TableCell(
-                        child: createButton(15),
-                      ),
-                      TableCell(
-                        child: createButton(16),
-                      ),
-                      TableCell(
-                        child: createButton(17),
-                      ),
-                      TableCell(
-                        child: createButton(18),
-                      ),
-                      TableCell(
-                        child: createButton(19),
-                      ),
-                      TableCell(
-                        child: createButton(20),
-                      ),
-                    ]),
-                    TableRow(children: [
-                      TableCell(
-                        child: createButton(21),
-                      ),
-                      TableCell(
-                        child: createButton(22),
-                      ),
-                      TableCell(
-                        child: createButton(23),
-                      ),
-                      TableCell(
-                        child: createButton(24),
-                      ),
-                      TableCell(
-                        child: createButton(25),
-                      ),
-                      const TableCell(
-                        child: Text(''),
-                      ),
-                      const TableCell(
-                        child: Text(''),
-                      ),
-                    ]),
-                  ],
-                ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(10.0, 2.0, 8.0, 10.0),
+                    child: Table(
+                      defaultVerticalAlignment: TableCellVerticalAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        TableRow(children: [
+                          TableCell(child: createButton(0)),
+                          TableCell(child: createButton(1)),
+                          TableCell(child: createButton(2)),
+                          TableCell(child: createButton(3)),
+                          TableCell(child: createButton(4)),
+                          TableCell(child: createButton(5)),
+                          TableCell(child: createButton(6)),
+                        ]),
+                        TableRow(children: [
+                          TableCell(child: createButton(7)),
+                          TableCell(child: createButton(8)),
+                          TableCell(child: createButton(9)),
+                          TableCell(child: createButton(10)),
+                          TableCell(child: createButton(11)),
+                          TableCell(child: createButton(12)),
+                          TableCell(child: createButton(13)),
+                        ]),
+                        TableRow(children: [
+                          TableCell(child: createButton(14)),
+                          TableCell(child: createButton(15)),
+                          TableCell(child: createButton(16)),
+                          TableCell(child: createButton(17)),
+                          TableCell(child: createButton(18)),
+                          TableCell(child: createButton(19)),
+                          TableCell(child: createButton(20)),
+                        ]),
+                        TableRow(children: [
+                          TableCell(child: createButton(21)),
+                          TableCell(child: createButton(22)),
+                          TableCell(child: createButton(23)),
+                          TableCell(child: createButton(24)),
+                          TableCell(child: createButton(25)),
+                          const TableCell(child: Text('')),
+                          const TableCell(child: Text('')),
+                        ]),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
