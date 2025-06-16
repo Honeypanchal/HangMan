@@ -120,10 +120,17 @@ const kDialogButtonTextStyle = TextStyle(
 );
 
 const kWordTextStyle = TextStyle(
-    fontSize: 57,
+    fontSize: 40,
     color: Colors.white,
-    fontFamily: 'FiraMono',
-    letterSpacing: 8);
+    fontWeight: FontWeight.w600,
+  fontFamily: 'Fredoka',
+  letterSpacing: 8,
+  shadows: [
+Shadow(color: Color.fromRGBO(0, 0, 0, 0.25),
+blurRadius: 4,
+offset: Offset(0, 4))
+  ]
+);
 
 const kDialogButtonColor = Color(0x00000000);
 

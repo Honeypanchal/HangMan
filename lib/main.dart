@@ -13,10 +13,9 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (!kIsWeb) {
-    sqfliteFfiInit(); // initialize FFI
-    databaseFactory = databaseFactoryFfi; // set the factory
-  }
+  // Initialize sqflite for all platforms
+
+
   print("🔄 Initializing Firebase...");
 
   if (Firebase.apps.isEmpty) {

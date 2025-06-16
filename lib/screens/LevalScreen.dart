@@ -60,7 +60,7 @@ class _WordscueLevelScreenState extends State<WordscueLevelScreen> {
                       Column(
                         children: [
                           GestureDetector(
-                            onTap: () {
+
                               onTap: () async {
                                 final uid = FirebaseAuth.instance.currentUser?.uid;
                                 if (uid != null) {
@@ -72,7 +72,7 @@ class _WordscueLevelScreenState extends State<WordscueLevelScreen> {
                                   context,
                                   MaterialPageRoute(builder: (context) => GameScreen()));
 
-                              };
+
 
 
 
@@ -115,7 +115,7 @@ class _WordscueLevelScreenState extends State<WordscueLevelScreen> {
                           SizedBox(height: 12),
 
                           GestureDetector(
-                            onTap: () {
+
                               onTap: () async {
                                 final uid = FirebaseAuth.instance.currentUser?.uid;
                                 if (uid != null) {
@@ -127,11 +127,11 @@ class _WordscueLevelScreenState extends State<WordscueLevelScreen> {
                                   context,
                                   MaterialPageRoute(builder: (context) =>GameScreen()),
                                 );
-                              };
+                              },
 
 
 
-                            },
+
 
                             child: Image.asset(
                               'assets/images/Medium.png',
@@ -143,7 +143,7 @@ class _WordscueLevelScreenState extends State<WordscueLevelScreen> {
                           SizedBox(height: 12),
 
                           GestureDetector(
-                            onTap: () {
+
                               onTap: () async {
                                 final uid = FirebaseAuth.instance.currentUser?.uid;
                                 if (uid != null) {
@@ -155,7 +155,7 @@ class _WordscueLevelScreenState extends State<WordscueLevelScreen> {
                                   context,
                                   MaterialPageRoute(builder: (context) =>GameScreen()),
                                 );
-                              };
+
 
 
 
