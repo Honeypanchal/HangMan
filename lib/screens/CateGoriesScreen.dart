@@ -109,22 +109,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>Dashboeard()));
-            },
-            child: Container(
-              height: 60,
-              width: 250,
-              decoration: BoxDecoration(
-                color: Colors.brown,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white,width: 2),
-
-              ),
-
-              child: Text("Save"),),
-          )
 
         ],
       ),
