@@ -71,13 +71,7 @@ class _DashboeardState extends State<Dashboeard> {
                             Navigator.push(context,MaterialPageRoute(builder: (context)=>WordscueLevelScreen()) );
                           },
                           child: Image.asset('assets/images/play_button.png', height: 60)),
-                    children: <Widget>[
-                      GestureDetector(
-                      onTap: (){
-                _playClickSound();
-                GameOverDialog.show(context, onRetry: () {  }, onExit: () {  });
-                },
-                  child: Image.asset('assets/images/play_button.png', height: 60),),
+
                       const SizedBox(height: 15),
                       GestureDetector(
                           onTap: (){
