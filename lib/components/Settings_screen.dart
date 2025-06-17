@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hangman/screens/DashBoeard.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -156,7 +157,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 right: 5,
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>const Dashboard()));
                   },
                   child:
                   Image.asset('assets/images/close_icon.png'),

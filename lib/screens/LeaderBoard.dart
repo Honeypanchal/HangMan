@@ -5,6 +5,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 
+import 'package:flutter_hangman/screens/DashBoeard.dart';
+
 
 
 class LeaderBoard extends StatefulWidget {
@@ -105,6 +107,8 @@ class _LeaderBoardState extends State<LeaderBoard> {
         ),
         child: SafeArea(
           child: Stack(
+
+
             children: [
               // Gradient background with animated clouds
 
@@ -252,6 +256,18 @@ class _LeaderBoardState extends State<LeaderBoard> {
                 ],
               ),
               SizedBox(height: 140,),
+              Positioned(
+                  top: 60,
+                  right: 5,
+                  child: GestureDetector(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>Dashboard()));
+                    },
+                    child: Image.asset("assets/images/close_icon.png",
+                      height: 50,
+                      width: 50,),
+                  )),
+
               Positioned(
 
                 top: 50,

@@ -1,6 +1,9 @@
 import 'dart:math';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hangman/components/word_button.dart';
+import 'package:flutter_hangman/screens/DashBoeard.dart';
 import 'package:flutter_hangman/screens/home_screen.dart';
 import 'package:flutter_hangman/utilities/alphabet.dart';
 import 'package:flutter_hangman/utilities/constants.dart';
@@ -8,8 +11,8 @@ import 'package:flutter_hangman/utilities/hangman_words.dart';
 import 'package:flutter_hangman/utilities/score_db.dart' as score_database;
 import 'package:flutter_hangman/utilities/user_scores.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
 import '../utilities/word_loader.dart';
+import '../components/DialogueBox.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -23,7 +26,7 @@ class _GameScreenState extends State<GameScreen> {
   bool isLoading = true;
   String? errorMessage;
 
-  int lives = 5;
+  int lives = 1; // Set to 1 for testing; change to 5 for normal play
   Alphabet englishAlphabet = Alphabet();
   String word = '';
   String hiddenWord = '';
@@ -35,12 +38,15 @@ class _GameScreenState extends State<GameScreen> {
   int wordCount = 0;
   bool finishedGame = false;
   bool resetGame = false;
+  final int maxWordsToWin = 8;
+  //final int maxWordsToWin = 1;
 
   @override
   void initState() {
     super.initState();
     hintStatus = true;
     buttonStatus = List.generate(26, (_) => true);
+    print("DEBUG: initState called, lives = $lives");
     _loadWordsFromFirebase();
   }
 
@@ -62,11 +68,33 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
+  Future<void> _awardCoins(int coins) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print("DEBUG: No user logged in, cannot award coins");
+      return;
+    }
+    try {
+      final userRef = FirebaseDatabase.instance.ref('users/${user.uid}');
+      await userRef.child('coins').runTransaction((currentCoins) {
+        final int newCoins = (currentCoins as int? ?? 0) + coins;
+        return Transaction.success(newCoins);
+      });
+      print("DEBUG: Awarded $coins coins to user ${user.uid}");
+    } catch (e) {
+      print("DEBUG: Error awarding coins: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error awarding coins: $e")),
+      );
+    }
+  }
+
   void newGame() {
+    print("DEBUG: Starting new game");
     setState(() {
       hangmanObject.resetWords();
       englishAlphabet = Alphabet();
-      lives = 5;
+      lives = 1; // Set to 1 for testing; change to 5 for normal play
       wordCount = 0;
       finishedGame = false;
       resetGame = false;
@@ -76,25 +104,33 @@ class _GameScreenState extends State<GameScreen> {
 
   Widget createButton(index) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 3.5, vertical: 6.0),
+      padding: const EdgeInsets.all(4.0),
+      margin: const EdgeInsets.all(2.0),
       child: Center(
         child: WordButton(
           buttonTitle: englishAlphabet.alphabet[index].toUpperCase(),
           onPress: buttonStatus[index] ? () => wordPress(index) : () {},
+          isEnabled: buttonStatus[index],
         ),
       ),
     );
   }
 
   void returnHomePage() {
-    Navigator.pushNamed(context, '/home');
+    print("DEBUG: Navigating to HomeScreen, current route: ${ModalRoute.of(context)?.settings.name}");
+    try {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const Dashboard()));
+    } catch (e) {
+      print("DEBUG: Navigation error: $e");
+    }
   }
 
   void initWords() {
+    print("DEBUG: Initializing new word");
     finishedGame = false;
     resetGame = false;
     hangState = 0;
-    buttonStatus = List.generate(26, (_) => true);
+    buttonStatus = List.generate(26, (_) => true); // Reset buttons
     wordList = [];
     hintLetters = [];
 
@@ -113,13 +149,18 @@ class _GameScreenState extends State<GameScreen> {
       wordList.add(word[i]);
       hintLetters.add(i);
     }
+    print("DEBUG: New word = $word, hiddenWord = $hiddenWord");
   }
 
   void wordPress(int index) {
-    if (lives == 0) {
+    print("DEBUG: wordPress called, letter = ${englishAlphabet.alphabet[index]}, lives = $lives, hangState = $hangState");
+    if (lives <= 0) {
+      print("DEBUG: Lives <= 0, navigating to home");
       returnHomePage();
+      return;
     }
     if (finishedGame) {
+      print("DEBUG: Game finished, resetting");
       setState(() {
         resetGame = true;
       });
@@ -141,89 +182,70 @@ class _GameScreenState extends State<GameScreen> {
       }
       if (!check) {
         hangState += 1;
+        print("DEBUG: Incorrect guess, hangState = $hangState");
       }
       if (hangState == 6) {
         finishedGame = true;
         lives -= 1;
+        print("DEBUG: hangState == 6, lives = $lives");
         if (lives < 1) {
+          print("DEBUG: Game over, showing GameOverDialog");
           if (wordCount > 0) {
             Score score = Score(
               id: null,
               scoreDate: DateTime.now().toString(),
               userScore: wordCount,
             );
+            print("DEBUG: Saving score: $wordCount");
             score_database.manipulateDatabase(score);
           }
-          Alert(
-            style: kGameOverAlertStyle,
-            context: context,
-            title: "Game Over!",
-            desc: "Your score is $wordCount",
-            buttons: [
-              DialogButton(
-                color: kDialogButtonColor,
-                onPressed: returnHomePage,
-                child: Icon(MdiIcons.home, size: 30.0),
-              ),
-              DialogButton(
-                onPressed: () {
-                  newGame();
-                  Navigator.pop(context);
-                },
-                color: kDialogButtonColor,
-                child: Icon(MdiIcons.refresh, size: 30.0),
-              ),
-            ],
-          ).show();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            GameOverDialog.show(
+              context,
+              onRetry: () {
+                print("DEBUG: Retry pressed");
+                newGame();
+                Navigator.pop(context);
+              },
+              onExit: () {
+                print("DEBUG: Exit pressed");
+                returnHomePage();
+              },
+            );
+          });
         } else {
-          Alert(
-            context: context,
-            style: kFailedAlertStyle,
-            type: AlertType.error,
-            title: word,
-            buttons: [
-              DialogButton(
-                radius: BorderRadius.circular(10),
-                width: 127,
-                color: kDialogButtonColor,
-                height: 52,
-                child: Icon(MdiIcons.arrowRightThick, size: 30.0),
-                onPressed: () {
-                  setState(() {
-                    Navigator.pop(context);
-                    initWords();
-                  });
-                },
-              ),
-            ],
-          ).show();
+          print("DEBUG: Initializing new word (lives >= 1)");
+          initWords();
         }
       }
-      buttonStatus[index] = false;
+      buttonStatus[index] = false; // Disable button
       if (hiddenWord == word) {
         finishedGame = true;
-        Alert(
-          context: context,
-          style: kSuccessAlertStyle,
-          type: AlertType.success,
-          title: word,
-          buttons: [
-            DialogButton(
-              radius: BorderRadius.circular(10),
-              width: 127,
-              color: kDialogButtonColor,
-              height: 52,
-              child: Icon(MdiIcons.arrowRightThick, size: 30.0),
-              onPressed: () {
-                setState(() {
-                  wordCount += 1;
-                  Navigator.pop(context);
-                  initWords();
-                });
+        wordCount += 1;
+        print("DEBUG: Word completed, wordCount = $wordCount");
+
+        // Check if the user has won (guessed maxWordsToWin words)
+        if (wordCount >= maxWordsToWin) {
+          print("DEBUG: User won, awarding 10 coins and showing WinnerDialog");
+          _awardCoins(10); // Award 10 coins
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            WinnerDialog.show(
+              context,
+              onRetry: () {
+                print("DEBUG: Next Level pressed");
+                newGame();
+                Navigator.pop(context);
               },
-            )
-          ],
-        ).show();
+              onExit: () {
+                print("DEBUG: Home pressed");
+                returnHomePage();
+
+              },
+            );
+          });
+        } else {
+          initWords();
+        }
       }
     });
   }
@@ -238,205 +260,205 @@ class _GameScreenState extends State<GameScreen> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: Colors.blue,
         body: Stack(
-
           children: [
             Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(image: AssetImage("assets/images/background.png"),
-                    fit: BoxFit.cover)
-              )
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage("assets/images/background.png"),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Image.asset(
+                'images/$hangState.png',
+                fit: BoxFit.contain,
+                height: 300, // Reduced height to avoid overlap
+                gaplessPlayback: true,
+              ),
             ),
             SafeArea(
-              child: isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : errorMessage != null
-                  ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Error: $errorMessage",
-                      style: const TextStyle(color: Colors.black, fontSize: 18),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          isLoading = true;
-                          errorMessage = null;
-                        });
-                        _loadWordsFromFirebase();
-                      },
-                      child: const Text("Retry"),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: returnHomePage,
-                      child: const Text("Return to Home"),
-                    ),
-                  ],
-                ),
-              )
-                  : Column(
+              child: Column(
                 children: <Widget>[
-                  Expanded(
-                    flex: 3,
-                    child: Column(
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(6.0, 8.0, 6.0, 35.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Row(
-                                children: <Widget>[
-                                  Stack(
-                                    children: <Widget>[
-                                      Container(
-                                        padding: const EdgeInsets.only(top: 0.5),
-                                        child: IconButton(
-                                          tooltip: 'Lives',
-                                          highlightColor: Colors.transparent,
-                                          splashColor: Colors.transparent,
-                                          iconSize: 39,
-                                          icon: Icon(MdiIcons.heart),
-                                          onPressed: () {},
-                                        ),
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            8.7, 7.9, 0, 0.8),
-                                        alignment: Alignment.center,
-                                        child: SizedBox(
-                                          height: 38,
-                                          width: 38,
-                                          child: Center(
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(2.0),
-                                              child: Text(
-                                                lives.toString() == "1"
-                                                    ? "I"
-                                                    : lives.toString(),
-                                                style: const TextStyle(
-                                                  color: Color(0xFF2C1E68),
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontFamily: 'PatrickHand',
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                child: Text(
-                                  wordCount == 1 ? "I" : '$wordCount',
-                                  style: kWordCounterTextStyle,
-                                ),
-                              ),
-                              SizedBox(
-                                child: IconButton(
-                                  tooltip: 'Hint',
-                                  iconSize: 39,
-                                  icon: Icon(MdiIcons.lightbulb),
-                                  highlightColor: Colors.transparent,
-                                  splashColor: Colors.transparent,
-                                  onPressed: hintStatus
-                                      ? () {
-                                    if (hintLetters.isNotEmpty) {
-                                      int rand = Random().nextInt(hintLetters.length);
-                                      wordPress(englishAlphabet.alphabet
-                                          .indexOf(wordList[hintLetters[rand]]));
-                                      hintStatus = false;
-                                    }
+                        Row(
+                          children: <Widget>[
+                            SizedBox(
+                              child: IconButton(
+                                tooltip: 'Hint',
+                                iconSize: 39,
+                                icon: Icon(MdiIcons.lightbulb),
+                                highlightColor: Colors.transparent,
+                                splashColor: Colors.transparent,
+                                onPressed: hintStatus
+                                    ? () {
+                                  if (hintLetters.isNotEmpty) {
+                                    int rand = Random().nextInt(hintLetters.length);
+                                    wordPress(englishAlphabet.alphabet
+                                        .indexOf(wordList[hintLetters[rand]]));
+                                    hintStatus = false;
                                   }
-                                      : null,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          flex: 6,
-                          child: Container(
-                            alignment: Alignment.bottomCenter,
-                            child: FittedBox(
-                              fit: BoxFit.contain,
-                              child: Image.asset(
-                                'images/$hangState.png',
-                                height: 1001,
-                                width: 991,
-                                gaplessPlayback: true,
+                                }
+                                    : null,
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                        Expanded(
-                          flex: 5,
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 35.0),
-                            alignment: Alignment.center,
-                            child: FittedBox(
-                              fit: BoxFit.fitWidth,
-                              child: Text(
-                                hiddenWord.toUpperCase(),
-                                style: kWordTextStyle,
-                              ),
-                            ),
+                        GestureDetector(
+                          onTap: () {
+                            print("DEBUG: Pause button pressed");
+                            PauseDialog.show(
+                              context,
+                              onRetry: () {
+                                print("DEBUG: Retry pressed from PauseDialog");
+                                newGame();
+                              },
+                              onExit: () {
+                                print("DEBUG: Quit pressed from PauseDialog");
+                                returnHomePage();
+                              },
+                            );
+                          },
+                          child: SizedBox(
+                            width: 55,
+                            height: 55,
+                            child: Image.asset('assets/images/pause_button.png'),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(10.0, 2.0, 8.0, 10.0),
-                    child: Table(
-                      defaultVerticalAlignment: TableCellVerticalAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
+                  Expanded(
+                    child: isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : errorMessage != null
+                        ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Error: $errorMessage",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              shadows: [
+                                Shadow(
+                                  blurRadius: 2.0,
+                                  color: Colors.black,
+                                  offset: Offset(1.0, 1.0),
+                                ),
+                              ],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                isLoading = true;
+                                errorMessage = null;
+                              });
+                              _loadWordsFromFirebase();
+                            },
+                            child: const Text("Retry"),
+                          ),
+                          const SizedBox(height: 10),
+                          ElevatedButton(
+                            onPressed: returnHomePage,
+                            child: const Text("Return to Home"),
+                          ),
+                        ],
+                      ),
+                    )
+                        : Column(
                       children: [
-                        TableRow(children: [
-                          TableCell(child: createButton(0)),
-                          TableCell(child: createButton(1)),
-                          TableCell(child: createButton(2)),
-                          TableCell(child: createButton(3)),
-                          TableCell(child: createButton(4)),
-                          TableCell(child: createButton(5)),
-                          TableCell(child: createButton(6)),
-                        ]),
-                        TableRow(children: [
-                          TableCell(child: createButton(7)),
-                          TableCell(child: createButton(8)),
-                          TableCell(child: createButton(9)),
-                          TableCell(child: createButton(10)),
-                          TableCell(child: createButton(11)),
-                          TableCell(child: createButton(12)),
-                          TableCell(child: createButton(13)),
-                        ]),
-                        TableRow(children: [
-                          TableCell(child: createButton(14)),
-                          TableCell(child: createButton(15)),
-                          TableCell(child: createButton(16)),
-                          TableCell(child: createButton(17)),
-                          TableCell(child: createButton(18)),
-                          TableCell(child: createButton(19)),
-                          TableCell(child: createButton(20)),
-                        ]),
-                        TableRow(children: [
-                          TableCell(child: createButton(21)),
-                          TableCell(child: createButton(22)),
-                          TableCell(child: createButton(23)),
-                          TableCell(child: createButton(24)),
-                          TableCell(child: createButton(25)),
-                          const TableCell(child: Text('')),
-                          const TableCell(child: Text('')),
-                        ]),
+                        Expanded(
+                          flex: 5,
+                          child: Container(
+                            margin: const EdgeInsets.only(left: 35.0, right: 35.0, top: 240),
+                            alignment: Alignment.center,
+                            child: FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: Text(
+                                hiddenWord.toUpperCase(),
+                                style: kWordTextStyle.copyWith(
+                                  color: Colors.white,
+                                  shadows: const [
+                                    Shadow(
+                                      blurRadius: 2.0,
+                                      color: Colors.black,
+                                      offset: Offset(1.0, 1.0),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.fromLTRB(10.0, 2.0, 8.0, 14.0),
+                          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 15.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Table(
+                            defaultVerticalAlignment: TableCellVerticalAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              TableRow(children: [
+                                TableCell(child: createButton(0)),
+                                TableCell(child: createButton(1)),
+                                TableCell(child: createButton(2)),
+                                TableCell(child: createButton(3)),
+                                TableCell(child: createButton(4)),
+                                TableCell(child: createButton(5)),
+                                TableCell(child: createButton(6)),
+                              ]),
+                              TableRow(children: [
+                                TableCell(child: createButton(7)),
+                                TableCell(child: createButton(8)),
+                                TableCell(child: createButton(9)),
+                                TableCell(child: createButton(10)),
+                                TableCell(child: createButton(11)),
+                                TableCell(child: createButton(12)),
+                                TableCell(child: createButton(13)),
+                              ]),
+                              TableRow(children: [
+                                TableCell(child: createButton(14)),
+                                TableCell(child: createButton(15)),
+                                TableCell(child: createButton(16)),
+                                TableCell(child: createButton(17)),
+                                TableCell(child: createButton(18)),
+                                TableCell(child: createButton(19)),
+                                TableCell(child: createButton(20)),
+                              ]),
+                              TableRow(children: [
+                                TableCell(child: createButton(21)),
+                                TableCell(child: createButton(22)),
+                                TableCell(child: createButton(23)),
+                                TableCell(child: createButton(24)),
+                                TableCell(child: createButton(25)),
+                                const TableCell(child: SizedBox()),
+                                const TableCell(child: SizedBox()),
+                              ]),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
