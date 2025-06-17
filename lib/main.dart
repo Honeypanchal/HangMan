@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hangman/screens/DashBoeard.dart';
 import 'package:flutter_hangman/screens/Splash_Screen1.dart';
 import 'package:flutter_hangman/screens/home_screen.dart';
 import 'package:flutter_hangman/screens/score_screen.dart';
@@ -133,11 +134,7 @@ class MainApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color(0xFF421b9b),
         textTheme: Theme.of(context).textTheme.apply(fontFamily: 'PatrickHand'),
       ),
-      // initialRoute: 'homePage',
-      // routes: {
-      //   'homePage': (context) => HomeScreen(),
-      //   'scorePage': (context) => const ScoreScreen(),
-      // },
+
     );
   }
 }

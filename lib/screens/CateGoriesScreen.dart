@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hangman/screens/DashBoeard.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -12,15 +11,51 @@ class CategoriesScreen extends StatefulWidget {
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
   final List<Map<String, String>> categories = [
-    {"title": "GENERAL\nKNOWLEDGE", "image": "assets/images/General_Knowledge.png"},
-    {"title": "SCIENCE &\nNATURE", "image": "assets/images/Science___Nature.png"},
-    {"title": "HISTORY &\nPOLITICS", "image": "assets/images/History___Politics.png"},
-    {"title": "SPORTS &\nGAMES", "image": "assets/images/Sports___Games.png"},
-    {"title": "GEOGRAPHY &\nTRAVEL", "image": "assets/images/Geography___Travel.png"},
-    {"title": "MUSIC &\nPOP CULTURE", "image": "assets/images/music-removebg.png"},
-    {"title": "MOVIES &\nTV SHOWS", "image": "assets/images/movies.png"},
-    {"title": "LITERATURE &\nBOOKS", "image": "assets/images/Books.png"},
-    {"title": "TECH &\nCREATIVITY", "image": "assets/images/tech.png"},
+    {
+      "title": "GENERAL\nKNOWLEDGE",
+      "image": "assets/images/General_Knowledge.png",
+      "key": "gk"
+    },
+    {
+      "title": "SCIENCE &\nNATURE",
+      "image": "assets/images/Science___Nature.png",
+      "key": "science_and_nature"
+    },
+    {
+      "title": "HISTORY &\nPOLITICS",
+      "image": "assets/images/History___Politics.png",
+      "key": "history_and_politics"
+    },
+    {
+      "title": "SPORTS &\nGAMES",
+      "image": "assets/images/Sports___Games.png",
+      "key": "sports_and_games"
+    },
+    {
+      "title": "GEOGRAPHY &\nTRAVEL",
+      "image": "assets/images/Geography___Travel.png",
+      "key": "geography_and_travel"
+    },
+    {
+      "title": "MUSIC &\nPOP CULTURE",
+      "image": "assets/images/music-removebg.png",
+      "key": "music_and_pop_culture"
+    },
+    {
+      "title": "MOVIES &\nTV SHOWS",
+      "image": "assets/images/movies.png",
+      "key": "movies_and_tv_shows"
+    },
+    {
+      "title": "LITERATURE &\nBOOKS",
+      "image": "assets/images/Books.png",
+      "key": "literature_and_books"
+    },
+    {
+      "title": "TECH &\nCREATIVITY",
+      "image": "assets/images/tech.png",
+      "key": "tech_and_creativity"
+    },
   ];
 
   @override
@@ -28,32 +63,25 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background image
           Positioned.fill(
             child: Image.asset(
               'assets/images/background.png',
               fit: BoxFit.cover,
             ),
           ),
-
-          // Centered Container
           Center(
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 24),
               padding: const EdgeInsets.all(16),
-              height:450,
-              width:360,
+              height: 550,
+              width: 380,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-
                 image: const DecorationImage(
-
-                  image: AssetImage('assets/images/Rectangle 71.png',),
-                  // 👈 your image here
+                  image: AssetImage('assets/images/Rectangle 71.png'),
                   fit: BoxFit.cover,
                 ),
               ),
-
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -73,21 +101,30 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         onTap: () async {
                           final uid = FirebaseAuth.instance.currentUser?.uid;
                           if (uid != null) {
-                            await FirebaseDatabase.instance.ref().child('users/$uid').update({
-                              'category': category['title']!,
+                            await FirebaseDatabase.instance
+                                .ref()
+                                .child('users/$uid')
+                                .update({
+                              'category': category['key']!,
                             });
+                            print('DEBUG: Set category to ${category['key']} for user $uid');
                           }
 
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Category set to ${category['title']}")),
+                            SnackBar(content: Text("Category set to ${category['title']!.replaceAll('\n', ' ')}")),
                           );
                         },
                         child: Column(
                           children: [
                             Expanded(
-                              child: Image.asset(category['image']!, height: 100, width: 100, fit: BoxFit.contain),
+                              child: Image.asset(
+                                category['image']!,
+                                height: 148,
+                                width: 100,
+                                fit: BoxFit.contain,
+                              ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 10),
                             Text(
                               category['title']!,
                               style: const TextStyle(
@@ -102,14 +139,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         ),
                       );
                     },
-
                   ),
-
                 ],
               ),
             ),
           ),
-
         ],
       ),
     );

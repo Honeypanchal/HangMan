@@ -84,3 +84,20 @@ flutter:
       fonts:
         - asset: assets/fonts/NexaRustSlab-BlackShadow01.otf
 
+
+
+    - family: SFProText
+      fonts:
+        - asset: assets/fonts/SF-Pro-Text-Bold.otf
+        - asset: assets/fonts/SF-Pro-Text-BoldItalic.otf
+        - asset: assets/fonts/SF-Pro-Text-Heavy.otf
+        - asset: assets/fonts/SF-Pro-Text-HeavyItalic.otf
+        - asset: assets/fonts/SF-Pro-Text-Light.otf
+        - asset: assets/fonts/SF-Pro-Text-LightItalic.otf
+        - asset: assets/fonts/SF-Pro-Text-Medium.otf
+        - asset: assets/fonts/SF-Pro-Text-MediumItalic.otf
+        - asset: assets/fonts/SF-Pro-Text-Regular.otf
+        - asset: assets/fonts/SF-Pro-Text-RegularItalic.otf
+        - asset: assets/fonts/SF-Pro-Text-Semibold.otf
+        - asset: assets/fonts/SF-Pro-Text-SemiboldItalic.otf
+
