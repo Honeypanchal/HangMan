@@ -6,14 +6,14 @@ import 'package:flutter_hangman/screens/LevalScreen.dart';
 
 import 'DailyRewardScreen.dart';
 
-class Dashboeard extends StatefulWidget {
-  const Dashboeard({super.key});
+class Dashboard extends StatefulWidget {
+  const Dashboard({super.key});
 
   @override
-  State<Dashboeard> createState() => _DashboeardState();
+  State<Dashboard> createState() => _DashboeardState();
 }
 
-class _DashboeardState extends State<Dashboeard> {
+class _DashboeardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

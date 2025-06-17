@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hangman/components/Settings_screen.dart';
 
 class CongratsDialog {
   static void show(BuildContext context) {
@@ -137,7 +138,8 @@ class WinnerDialog {
               Container(
                 height: 330,
                 width: 280,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
                   color: Color.fromRGBO(255, 255, 255, 0.25),
                 ),
                 child: Column(
@@ -246,9 +248,7 @@ class WinnerDialog {
 
 }
 
-
-class PauseDialog{
-
+class PauseDialog {
   static void show(
       BuildContext context, {
         required VoidCallback onRetry,
@@ -257,32 +257,105 @@ class PauseDialog{
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
+      builder: (dialogContext) {
         return Dialog(
           backgroundColor: Colors.transparent,
           insetPadding: const EdgeInsets.all(16),
           child: Stack(
             children: [
               Container(
-                height: 428,
-                width: 250,
-                decoration: const BoxDecoration(
-                  color: Color.fromRGBO(0, 0, 0, 0.35),
+                padding: const EdgeInsets.all(16),
+                height: 390,
+                width: 350,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: const Color.fromRGBO(0, 0, 0, 0.35),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Stack to overlay text with stroke and fill
-                    Image.asset('assets/images/Resume_button.png'),
-                    SizedBox(height: 20,),
-                    Image.asset('assets/images/Reply_Button.png'),
-                    SizedBox(height: 20,),
-                    Image.asset('assets/images/Settings.png'),
-                    SizedBox(height: 20,),
-                    Image.asset('assets/images/Quit_button.png'),
-                    SizedBox(height: 20,),
-
-
+                    GestureDetector(
+                      onTap: () {
+                        print("DEBUG: Resume pressed from PauseDialog");
+                        Navigator.pop(dialogContext);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Image.asset(
+                          'assets/images/Resume_button.png',
+                          height: 60,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            print('DEBUG: Error loading Resume_button.png');
+                            return const Icon(Icons.error, color: Colors.red);
+                          },
+                        ),
+                      ),
+                    ),
+                    //const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: () {
+                        print("DEBUG: Retry pressed from PauseDialog");
+                        onRetry();
+                        Navigator.pop(dialogContext);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Image.asset(
+                          'assets/images/Reply_Button.png',
+                          height: 60,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            print('DEBUG: Error loading Reply_Button.png');
+                            return const Icon(Icons.error, color: Colors.red);
+                          },
+                        ),
+                      ),
+                    ),
+                  //    const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: () {
+                        print("DEBUG: Settings pressed from PauseDialog");
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsScreen()));
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Image.asset(
+                          'assets/images/Settings.png',
+                          height: 60,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            print('DEBUG: Error loading Settings.png');
+                            return const Icon(Icons.error, color: Colors.red);
+                          },
+                        ),
+                      ),
+                    ),
+                    //const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: () {
+                        print("DEBUG: Quit pressed from PauseDialog");
+                        Navigator.pop(dialogContext);
+                        try {
+                          onExit();
+                          print("DEBUG: onExit executed successfully");
+                        } catch (e) {
+                          print("DEBUG: Error in onExit: $e");
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: Image.asset(
+                          'assets/images/Quit_button.png',
+                          height: 60,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            print('DEBUG: Error loading Quit_button.png');
+                            return const Icon(Icons.error, color: Colors.red);
+                          },
+                        ),
+                      ),
+                    ),
 
                   ],
                 ),
@@ -293,5 +366,4 @@ class PauseDialog{
       },
     );
   }
-
 }

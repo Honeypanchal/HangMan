@@ -31,7 +31,7 @@ class _StartScreenState extends State<StartScreen>  with WidgetsBindingObserver 
         // User already signed in → Go to Dashboard
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const Dashboeard()),
+          MaterialPageRoute(builder: (context) => const Dashboard()),
         );
       } else {
         // User not signed in → Go to Username Screen

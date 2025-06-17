@@ -116,7 +116,8 @@ class MainApp extends StatelessWidget {
     ]);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+       home: SplashScreen(),
+      //home: Dashboeard(),
 
       theme: ThemeData.dark().copyWith(
         tooltipTheme: TooltipThemeData(

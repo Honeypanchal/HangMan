@@ -71,9 +71,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           ),
           Center(
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 24),
-              padding: const EdgeInsets.all(16),
-              height: 550,
+              margin: const EdgeInsets.symmetric(horizontal: 24,vertical: 12),
+              padding: const EdgeInsets.only(top: 16,left: 12,right: 12),
+              height: 420,
               width: 380,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
@@ -116,25 +116,30 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         },
                         child: Column(
                           children: [
-                            Expanded(
+                         SizedBox(
+                             height: 100,
+
+
                               child: Image.asset(
                                 category['image']!,
-                                height: 148,
-                                width: 100,
-                                fit: BoxFit.contain,
+
+                               // fit: BoxFit.contain,
                               ),
+
                             ),
-                            const SizedBox(height: 10),
-                            Text(
-                              category['title']!,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Fredoka',
-                                fontSize: 12,
-                                height: 1.2,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
+                           //SizedBox(height: 10,),
+                           // const SizedBox(height: 15),
+                           //  Text(
+                           //    category['title']!,
+                           //    style: const TextStyle(
+                           //      fontWeight: FontWeight.bold,
+                           //      fontFamily: 'Fredoka',
+                           //      fontSize: 12,
+                           //      height: 1.2,
+                           //    ),
+                           //    textAlign: TextAlign.center,
+                           //  ),
+                           //  SizedBox(height: 10,),
                           ],
                         ),
                       );

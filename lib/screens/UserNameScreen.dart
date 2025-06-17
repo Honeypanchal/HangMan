@@ -38,6 +38,7 @@ class _UsernamescreenState extends State<Usernamescreen> {
         'username': username,
         'difficulty': 'beginner', // default
         'category': 'general knowledge', // default
+        'coins':0,
       });
 
 
@@ -46,7 +47,7 @@ class _UsernamescreenState extends State<Usernamescreen> {
         const SnackBar(content: Text("User saved successfully!")),
       );
 
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>Dashboeard()));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>const Dashboard()));
 
       // TODO: Navigate to next screen here
 

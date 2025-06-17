@@ -1,4 +1,6 @@
 import 'dart:math';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hangman/components/word_button.dart';
 import 'package:flutter_hangman/screens/DashBoeard.dart';
@@ -37,6 +39,7 @@ class _GameScreenState extends State<GameScreen> {
   bool finishedGame = false;
   bool resetGame = false;
   final int maxWordsToWin = 8;
+  //final int maxWordsToWin = 1;
 
   @override
   void initState() {
@@ -62,6 +65,27 @@ class _GameScreenState extends State<GameScreen> {
         isLoading = false;
         errorMessage = e.toString();
       });
+    }
+  }
+
+  Future<void> _awardCoins(int coins) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print("DEBUG: No user logged in, cannot award coins");
+      return;
+    }
+    try {
+      final userRef = FirebaseDatabase.instance.ref('users/${user.uid}');
+      await userRef.child('coins').runTransaction((currentCoins) {
+        final int newCoins = (currentCoins as int? ?? 0) + coins;
+        return Transaction.success(newCoins);
+      });
+      print("DEBUG: Awarded $coins coins to user ${user.uid}");
+    } catch (e) {
+      print("DEBUG: Error awarding coins: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error awarding coins: $e")),
+      );
     }
   }
 
@@ -93,8 +117,12 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void returnHomePage() {
-    print("DEBUG: Navigating to HomeScreen");
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>Dashboeard()));
+    print("DEBUG: Navigating to HomeScreen, current route: ${ModalRoute.of(context)?.settings.name}");
+    try {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const Dashboard()));
+    } catch (e) {
+      print("DEBUG: Navigation error: $e");
+    }
   }
 
   void initWords() {
@@ -198,7 +226,8 @@ class _GameScreenState extends State<GameScreen> {
 
         // Check if the user has won (guessed maxWordsToWin words)
         if (wordCount >= maxWordsToWin) {
-          print("DEBUG: User won, showing WinnerDialog");
+          print("DEBUG: User won, awarding 10 coins and showing WinnerDialog");
+          _awardCoins(10); // Award 10 coins
           WidgetsBinding.instance.addPostFrameCallback((_) {
             WinnerDialog.show(
               context,
@@ -210,7 +239,7 @@ class _GameScreenState extends State<GameScreen> {
               onExit: () {
                 print("DEBUG: Home pressed");
                 returnHomePage();
-                Navigator.pop(context);
+
               },
             );
           });
@@ -262,61 +291,24 @@ class _GameScreenState extends State<GameScreen> {
                       children: <Widget>[
                         Row(
                           children: <Widget>[
-                            Stack(
-                              children: <Widget>[
-                                // Container(
-                                //   padding: const EdgeInsets.only(top: 0.5),
-                                //   child: IconButton(
-                                //     tooltip: 'Lives',
-                                //     highlightColor: Colors.transparent,
-                                //     splashColor: Colors.transparent,
-                                //     iconSize: 39,
-                                //     icon: Icon(MdiIcons.heart),
-                                //     onPressed: () {},
-                                //   ),
-                                // ),
-                                // Container(
-                                //   padding: const EdgeInsets.fromLTRB(8.7, 7.9, 0, 0.8),
-                                //   alignment: Alignment.center,
-                                //   child: SizedBox(
-                                //     height: 38,
-                                //     width: 38,
-                                //     child: Center(
-                                //       child: Padding(
-                                //         padding: const EdgeInsets.all(2.0),
-                                //         child: Text(
-                                //           lives.toString() == "1" ? "I" : lives.toString(),
-                                //           style: const TextStyle(
-                                //             color: Color(0xFF2C1E68),
-                                //             fontSize: 40,
-                                //             fontWeight: FontWeight.bold,
-                                //             fontFamily: 'PatrickHand',
-                                //           ),
-                                //         ),
-                                //       ),
-                                //     ),
-                                //   ),
-                                // ),
-                                SizedBox(
-                                  child: IconButton(
-                                    tooltip: 'Hint',
-                                    iconSize: 39,
-                                    icon: Icon(MdiIcons.lightbulb),
-                                    highlightColor: Colors.transparent,
-                                    splashColor: Colors.transparent,
-                                    onPressed: hintStatus
-                                        ? () {
-                                      if (hintLetters.isNotEmpty) {
-                                        int rand = Random().nextInt(hintLetters.length);
-                                        wordPress(englishAlphabet.alphabet
-                                            .indexOf(wordList[hintLetters[rand]]));
-                                        hintStatus = false;
-                                      }
-                                    }
-                                        : null,
-                                  ),
-                                ),
-                              ],
+                            SizedBox(
+                              child: IconButton(
+                                tooltip: 'Hint',
+                                iconSize: 39,
+                                icon: Icon(MdiIcons.lightbulb),
+                                highlightColor: Colors.transparent,
+                                splashColor: Colors.transparent,
+                                onPressed: hintStatus
+                                    ? () {
+                                  if (hintLetters.isNotEmpty) {
+                                    int rand = Random().nextInt(hintLetters.length);
+                                    wordPress(englishAlphabet.alphabet
+                                        .indexOf(wordList[hintLetters[rand]]));
+                                    hintStatus = false;
+                                  }
+                                }
+                                    : null,
+                              ),
                             ),
                           ],
                         ),
@@ -341,7 +333,6 @@ class _GameScreenState extends State<GameScreen> {
                             child: Image.asset('assets/images/pause_button.png'),
                           ),
                         ),
-
                       ],
                     ),
                   ),
@@ -392,7 +383,7 @@ class _GameScreenState extends State<GameScreen> {
                         Expanded(
                           flex: 5,
                           child: Container(
-                            margin: const EdgeInsets.only(left: 35.0,right: 35.0,top: 240),
+                            margin: const EdgeInsets.only(left: 35.0, right: 35.0, top: 240),
                             alignment: Alignment.center,
                             child: FittedBox(
                               fit: BoxFit.fitWidth,
@@ -416,7 +407,6 @@ class _GameScreenState extends State<GameScreen> {
                           padding: const EdgeInsets.fromLTRB(10.0, 2.0, 8.0, 14.0),
                           margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 15.0),
                           decoration: BoxDecoration(
-                            //color: Colors.white.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
