@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hangman/components/Settings_screen.dart';
+import 'package:flutter_hangman/screens/LevalScreen.dart';
 
 class CongratsDialog {
   static void show(BuildContext context) {
@@ -197,7 +198,9 @@ class WinnerDialog {
                     const SizedBox(height: 12),
                     // Next Level button (text)
                     GestureDetector(
-                      onTap: onRetry,
+                      onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>WordscueLevelScreen()));
+                      },
                       child: const Text(
                         'NEXT LEVEL',
                         style: TextStyle(

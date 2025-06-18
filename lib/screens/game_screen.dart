@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -40,6 +41,11 @@ class _GameScreenState extends State<GameScreen> {
   bool resetGame = false;
   final int maxWordsToWin = 8;
   //final int maxWordsToWin = 1;
+  // Timer variables
+  bool isTimerOn = false;
+  int seconds = 0; // For count-up (isTimerOn = false) or countdown (isTimerOn = true)
+  Timer? _timer;
+  bool isPaused = false;
 
   @override
   void initState() {
@@ -47,7 +53,67 @@ class _GameScreenState extends State<GameScreen> {
     hintStatus = true;
     buttonStatus = List.generate(26, (_) => true);
     print("DEBUG: initState called, lives = $lives");
+    _loadSettings();
     _loadWordsFromFirebase();
+  }
+  Future<void> _loadSettings() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        final snapshot = await FirebaseDatabase.instance
+            .ref('users/${user.uid}/settings/timerOn')
+            .get();
+        setState(() {
+          isTimerOn = snapshot.value as bool? ?? false;
+          seconds = isTimerOn ? 300 : 0; // 5 minutes (300s) or 0
+          _startTimer();
+        });
+      } catch (e) {
+        print("DEBUG: Error loading settings: $e");
+      }
+    }
+  }
+
+
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!isPaused) {
+        setState(() {
+          if (isTimerOn) {
+            if (seconds > 0) {
+              seconds--;
+            } else {
+              _timer?.cancel();
+              print("DEBUG: Timer reached 00:00, showing GameOverDialog");
+              finishedGame = true;
+              lives = 0;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                GameOverDialog.show(
+                  context,
+                  onRetry: () {
+                    print("DEBUG: Retry pressed");
+                    newGame();
+                    Navigator.pop(context);
+                  },
+                  onExit: () {
+                    print("DEBUG: Exit pressed");
+                    returnHomePage();
+                  },
+                );
+              });
+            }
+          } else {
+            seconds++;
+          }
+        });
+      }
+    });
+  }
+  String _formatTimer(int seconds) {
+    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
+    final secs = (seconds % 60).toString().padLeft(2, '0');
+    return "$minutes:$secs";
   }
 
   Future<void> _loadWordsFromFirebase() async {
@@ -98,6 +164,10 @@ class _GameScreenState extends State<GameScreen> {
       wordCount = 0;
       finishedGame = false;
       resetGame = false;
+      hintStatus = true;
+      seconds = isTimerOn ? 300 : 0; // Reset timer
+      isPaused = false;
+      _startTimer();
       initWords();
     });
   }
@@ -125,14 +195,18 @@ class _GameScreenState extends State<GameScreen> {
     }
   }
 
+
   void initWords() {
     print("DEBUG: Initializing new word");
     finishedGame = false;
     resetGame = false;
     hangState = 0;
-    buttonStatus = List.generate(26, (_) => true); // Reset buttons
+    buttonStatus = List.generate(26, (_) => true);
     wordList = [];
     hintLetters = [];
+    hintStatus = true;
+    seconds = isTimerOn ? 300 : 0; // Reset timer
+    _startTimer();
 
     final newWord = hangmanObject.getWord();
     if (newWord == null || newWord.isEmpty) {
@@ -275,7 +349,7 @@ class _GameScreenState extends State<GameScreen> {
               left: 0,
               right: 0,
               child: Image.asset(
-                'images/$hangState.png',
+                'assets/images/$hangState.png',
                 fit: BoxFit.contain,
                 height: 300, // Reduced height to avoid overlap
                 gaplessPlayback: true,
@@ -289,25 +363,57 @@ class _GameScreenState extends State<GameScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            SizedBox(
-                              child: IconButton(
-                                tooltip: 'Hint',
-                                iconSize: 39,
-                                icon: Icon(MdiIcons.lightbulb),
-                                highlightColor: Colors.transparent,
-                                splashColor: Colors.transparent,
-                                onPressed: hintStatus
-                                    ? () {
-                                  if (hintLetters.isNotEmpty) {
-                                    int rand = Random().nextInt(hintLetters.length);
-                                    wordPress(englishAlphabet.alphabet
-                                        .indexOf(wordList[hintLetters[rand]]));
-                                    hintStatus = false;
-                                  }
-                                }
-                                    : null,
+                        // Row(
+                        //   children: <Widget>[
+                        //     SizedBox(
+                        //       child: IconButton(
+                        //         tooltip: 'Hint',
+                        //         iconSize: 39,
+                        //         icon: Icon(MdiIcons.lightbulb),
+                        //         highlightColor: Colors.transparent,
+                        //         splashColor: Colors.transparent,
+                        //         onPressed: hintStatus
+                        //             ? () {
+                        //           if (hintLetters.isNotEmpty) {
+                        //             int rand = Random().nextInt(hintLetters.length);
+                        //             wordPress(englishAlphabet.alphabet
+                        //                 .indexOf(wordList[hintLetters[rand]]));
+                        //             hintStatus = false;
+                        //           }
+                        //         }
+                        //             : null,
+                        //       ),
+                        //     ),
+                        //   ],
+                        // ),
+                        Stack(
+                          children: [
+                            Align(
+                              alignment: Alignment.bottomLeft,
+                              child: Image.asset("assets/images/clock.png"),
+                            ),
+                            Container(
+                              height: 43,
+                              width: 110,
+                              decoration:  BoxDecoration(
+                                color: Color.fromRGBO(0, 0, 0, 0.25),
+                                borderRadius: BorderRadius.circular(50),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 7),
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    textAlign: TextAlign.center,
+                                    _formatTimer(seconds),
+                                    style: const TextStyle(
+                                      fontFamily: 'Fredoka',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 19,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ],

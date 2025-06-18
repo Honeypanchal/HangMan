@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hangman/screens/DashBoeard.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -73,7 +74,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 24,vertical: 12),
               padding: const EdgeInsets.only(top: 16,left: 12,right: 12),
-              height: 420,
+              height: MediaQuery.of(context).size.height>900?500:MediaQuery.of(context).size.height>710?420:450,
               width: 380,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
@@ -149,6 +150,18 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               ),
             ),
           ),
+          Positioned(
+              top: 180,
+              right: 15,
+              child: GestureDetector(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>Dashboard()));
+                },
+                child: Image.asset("assets/images/close_icon.png",
+                  height: 50,
+                  width: 50,),
+              )),
+
         ],
       ),
     );

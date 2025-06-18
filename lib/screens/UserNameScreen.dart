@@ -120,7 +120,8 @@ class _UsernamescreenState extends State<Usernamescreen> {
             Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 260),
+                padding:  EdgeInsets.only(bottom: MediaQuery.of(context).
+                size.height>900?335:MediaQuery.of(context).size.height>710?260:260),
                 child: GestureDetector(
                   onTap: _handlePlayButton,
                   child: Image.asset('assets/images/play_button.png'),

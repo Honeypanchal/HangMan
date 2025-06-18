@@ -135,130 +135,131 @@ class _LeaderBoardState extends State<LeaderBoard> {
                         ),
                       ),
                     )
-                        : Container(
-                      margin: EdgeInsets.only(
-                        left: 20,
-                        right: 20,
-                        top: MediaQuery.of(context).size.height * 0.1,
-                        bottom: MediaQuery.of(context).size.height * 0.1,
-                      ),
-                      width: 345,
-                      height: 510,
-                      decoration: BoxDecoration(
-                        color: Color.fromRGBO(90, 48, 13, 0.9),
+                        : Align(
+                      alignment: Alignment.center,
+                          child: Container(
+                            margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).
+                            size.width>410?0:MediaQuery.of(context).size.width>350?20:10),
+                            padding: EdgeInsets.only(top: 10,bottom: 20),
+                                                width: 345,
+                                                height: 510,
+                                                decoration: BoxDecoration(
+                          color: Color.fromRGBO(90, 48, 13, 0.9),
 
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            offset: Offset(0, 10), // 0px horizontal, 10px vertical
-                            blurRadius: 4, // 4px blur
-                            spreadRadius: 0, // 0px spread
-                            color: Color.fromRGBO(0, 0, 0, 0.25), // rgba(0, 0, 0, 0.25)
-                          ),
-                        ],
-                      ),
-                      child: ListView.builder(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
-                        itemCount: leaderboardData.length,
-                        itemBuilder: (context, index) {
-                          var user = leaderboardData[index];
-                          final currentUid = FirebaseAuth.instance.currentUser?.uid;
-                          final isCurrentUser = user['uid'] == currentUid;
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              offset: Offset(0, 10), // 0px horizontal, 10px vertical
+                              blurRadius: 4, // 4px blur
+                              spreadRadius: 0, // 0px spread
+                              color: Color.fromRGBO(0, 0, 0, 0.25), // rgba(0, 0, 0, 0.25)
+                            ),
+                          ],
+                                                ),
+                                                child: ListView.builder(
+                          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 20),
+                          itemCount: leaderboardData.length,
+                          itemBuilder: (context, index) {
+                            var user = leaderboardData[index];
+                            final currentUid = FirebaseAuth.instance.currentUser?.uid;
+                            final isCurrentUser = user['uid'] == currentUid;
 
-                          return Column(
-                            children: [
-                              if (index == 0) SizedBox(height: 30), // 👈 Add this for top spacing
-                              SizedBox(
-                                width: 308,
-                                height: 60,
-                                child: Card(
-                                  color: isCurrentUser
-                                      ? Colors.white
-                                      : Color.fromRGBO(244, 204, 92, 1),
-                                  elevation: 5,
-                                  margin: EdgeInsets.symmetric(vertical: 8.0),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                  ),
-                                  child: ListTile(
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 12), // optional, for tighter fit
-                                    leading: Text(
-                                      '${user['rank']}.',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: 21,
-                                        fontFamily: 'NexaRustSans',
-                                      ),
+                            return Column(
+                              children: [
+                                if (index == 0) SizedBox(height: 20), // 👈 Add this for top spacing
+                                SizedBox(
+                                  width: 308,
+                                  height: 60,
+                                  child: Card(
+                                    color: isCurrentUser
+                                        ? Colors.white
+                                        : Color.fromRGBO(244, 204, 92, 1),
+                                    elevation: 5,
+                                    margin: EdgeInsets.symmetric(vertical: 8.0),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
                                     ),
-                                    title: Row(
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 12, // smaller size to fit within 45 height
-                                          backgroundColor: Colors.transparent,
-                                          child: Image.asset(
-                                            'assets/images/avatar.png',
-                                            fit: BoxFit.cover,
-                                            width: 30,
-                                            height: 30,
-                                          ),
+                                    child: ListTile(
+                                      contentPadding: EdgeInsets.symmetric(horizontal: 12), // optional, for tighter fit
+                                      leading: Text(
+                                        '${user['rank']}.',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 21,
+                                          fontFamily: 'NexaRustSans',
                                         ),
-                                        SizedBox(width: 6),
-                                        Expanded(
-                                          child: Text(
-                                            isCurrentUser ? "YOU" : user['name'] ?? 'Unknown',
+                                      ),
+                                      title: Row(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 12, // smaller size to fit within 45 height
+                                            backgroundColor: Colors.transparent,
+                                            child: Image.asset(
+                                              'assets/images/avatar.png',
+                                              fit: BoxFit.cover,
+                                              width: 30,
+                                              height: 30,
+                                            ),
+                                          ),
+                                          SizedBox(width: 6),
+                                          Expanded(
+                                            child: Text(
+                                              isCurrentUser ? "YOU" : user['name'] ?? 'Unknown',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 22,
+                                                fontWeight: FontWeight.w500,
+                                                fontFamily: 'Fredoka',
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            '${user['coins'] ?? 0}',
                                             style: TextStyle(
                                               color: Colors.black,
-                                              fontSize: 22,
+                                              fontSize: 23,
                                               fontWeight: FontWeight.w500,
                                               fontFamily: 'Fredoka',
                                             ),
-                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    trailing: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          '${user['coins'] ?? 0}',
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 23,
-                                            fontWeight: FontWeight.w500,
-                                            fontFamily: 'Fredoka',
+                                          SizedBox(width: 4),
+                                          Image.asset(
+                                            'assets/images/coin.png',
+                                            width: 24,
+                                            height: 24,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              print('Error loading coin.png: $error');
+                                              return Icon(Icons.error, color: Colors.red);
+                                            },
                                           ),
-                                        ),
-                                        SizedBox(width: 4),
-                                        Image.asset(
-                                          'assets/images/coin.png',
-                                          width: 24,
-                                          height: 24,
-                                          errorBuilder: (context, error, stackTrace) {
-                                            print('Error loading coin.png: $error');
-                                            return Icon(Icons.error, color: Colors.red);
-                                          },
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
 
-                            ],
-                          );
-                        },
+                              ],
+                            );
+                          },
 
-                      ),
-                    ),
+                                                ),
+                                              ),
+                        ),
                   ),
                 ],
               ),
               SizedBox(height: 140,),
               Positioned(
-                  top: 60,
-                  right: 5,
+
+                  top: MediaQuery.of(context).size.height>900?180:100,
+                  right: MediaQuery.of(context).size.height>900?10:5,
                   child: GestureDetector(
                     onTap: (){
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>Dashboard()));
@@ -270,14 +271,15 @@ class _LeaderBoardState extends State<LeaderBoard> {
 
               Positioned(
 
-                top: 50,
+                top: MediaQuery.of(context).size.height>900?180:100,
                 left: 0,
                 right: 0,
 
                 child: Center(
                   child: Container(
 
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                    padding: EdgeInsets.symmetric(vertical: 8,
+                        horizontal: 20),
                     decoration: BoxDecoration(
                         color: Color.fromRGBO(254, 204, 92, 1),
                         borderRadius: BorderRadius.circular(3),
