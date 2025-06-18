@@ -74,7 +74,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 24,vertical: 12),
               padding: const EdgeInsets.only(top: 16,left: 12,right: 12),
-              height: MediaQuery.of(context).size.height>900?500:MediaQuery.of(context).size.height>710?420:450,
+              height: MediaQuery.of(context).size.height>900?500:MediaQuery.of(context).size.height>
+                  710?450:450,
               width: 380,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
@@ -151,7 +152,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             ),
           ),
           Positioned(
-              top: 180,
+              top: MediaQuery.of(context).size.height>900?180:MediaQuery.of(context).size.height>710?120:160,
               right: 15,
               child: GestureDetector(
                 onTap: (){

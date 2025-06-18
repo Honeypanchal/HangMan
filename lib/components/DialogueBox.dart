@@ -171,7 +171,7 @@ class WinnerDialog {
                           ),
                         ),
                         // Text with fill color (white)
-                        Text(
+                        const Text(
                           'Victory!!',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
@@ -222,7 +222,7 @@ class WinnerDialog {
                     // Home button (text)
                     GestureDetector(
                       onTap: onExit,
-                      child: Text(
+                      child: const Text(
                         'HOME',
                         style: TextStyle(
                           fontSize: 33,
@@ -251,9 +251,12 @@ class WinnerDialog {
 
 }
 
-class PauseDialog {
+
+class PauseDialog
+{
   static void show(
       BuildContext context, {
+        required VoidCallback onResume,
         required VoidCallback onRetry,
         required VoidCallback onExit,
       }) {
@@ -280,6 +283,7 @@ class PauseDialog {
                     GestureDetector(
                       onTap: () {
                         print("DEBUG: Resume pressed from PauseDialog");
+                        onResume();
                         Navigator.pop(dialogContext);
                       },
                       child: Padding(
@@ -295,7 +299,6 @@ class PauseDialog {
                         ),
                       ),
                     ),
-                    //const SizedBox(height: 10),
                     GestureDetector(
                       onTap: () {
                         print("DEBUG: Retry pressed from PauseDialog");
@@ -315,11 +318,11 @@ class PauseDialog {
                         ),
                       ),
                     ),
-                  //    const SizedBox(height: 10),
                     GestureDetector(
                       onTap: () {
                         print("DEBUG: Settings pressed from PauseDialog");
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsScreen()));
+                        Navigator.pop(dialogContext);
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(8),
@@ -334,7 +337,6 @@ class PauseDialog {
                         ),
                       ),
                     ),
-                    //const SizedBox(height: 10),
                     GestureDetector(
                       onTap: () {
                         print("DEBUG: Quit pressed from PauseDialog");
@@ -359,7 +361,6 @@ class PauseDialog {
                         ),
                       ),
                     ),
-
                   ],
                 ),
               ),

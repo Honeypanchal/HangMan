@@ -40,7 +40,7 @@ class _GameScreenState extends State<GameScreen> {
   bool finishedGame = false;
   bool resetGame = false;
   final int maxWordsToWin = 8;
-  //final int maxWordsToWin = 1;
+
   // Timer variables
   bool isTimerOn = false;
   int seconds = 0; // For count-up (isTimerOn = false) or countdown (isTimerOn = true)
@@ -56,6 +56,37 @@ class _GameScreenState extends State<GameScreen> {
     _loadSettings();
     _loadWordsFromFirebase();
   }
+  Future<void> _loadWordsFromFirebase() async {
+    try {
+      final words = await fetchWordsFromFirebase();
+      hangmanObject = HangmanWords(words);
+      initWords();
+      setState(() {
+        isLoading = false;
+        errorMessage = null;
+      });
+    } catch (e) {
+      print("Error loading words: $e");
+      setState(() {
+        isLoading = false;
+        errorMessage = e.toString();
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Reload settings when returning to GameScreen
+    _loadSettings();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
   Future<void> _loadSettings() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -65,7 +96,10 @@ class _GameScreenState extends State<GameScreen> {
             .get();
         setState(() {
           isTimerOn = snapshot.value as bool? ?? false;
-          seconds = isTimerOn ? 300 : 0; // 5 minutes (300s) or 0
+          // Only reset seconds if timer mode changes
+          if ((isTimerOn && seconds == 0) || (!isTimerOn && seconds == 300)) {
+            seconds = isTimerOn ? 300 : 0;
+          }
           _startTimer();
         });
       } catch (e) {
@@ -73,7 +107,6 @@ class _GameScreenState extends State<GameScreen> {
       }
     }
   }
-
 
   void _startTimer() {
     _timer?.cancel();
@@ -110,28 +143,11 @@ class _GameScreenState extends State<GameScreen> {
       }
     });
   }
+
   String _formatTimer(int seconds) {
     final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
     final secs = (seconds % 60).toString().padLeft(2, '0');
     return "$minutes:$secs";
-  }
-
-  Future<void> _loadWordsFromFirebase() async {
-    try {
-      final words = await fetchWordsFromFirebase();
-      hangmanObject = HangmanWords(words);
-      initWords();
-      setState(() {
-        isLoading = false;
-        errorMessage = null;
-      });
-    } catch (e) {
-      print("Error loading words: $e");
-      setState(() {
-        isLoading = false;
-        errorMessage = e.toString();
-      });
-    }
   }
 
   Future<void> _awardCoins(int coins) async {
@@ -187,14 +203,14 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void returnHomePage() {
-    print("DEBUG: Navigating to HomeScreen, current route: ${ModalRoute.of(context)?.settings.name}");
+    print("DEBUG: Navigating to Dashboard, current route: ${ModalRoute.of(context)?.settings.name}");
+    _timer?.cancel(); // Stop timer on exit
     try {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const Dashboard()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Dashboard()));
     } catch (e) {
       print("DEBUG: Navigation error: $e");
     }
   }
-
 
   void initWords() {
     print("DEBUG: Initializing new word");
@@ -292,16 +308,14 @@ class _GameScreenState extends State<GameScreen> {
           initWords();
         }
       }
-      buttonStatus[index] = false; // Disable button
+      buttonStatus[index] = false;
       if (hiddenWord == word) {
         finishedGame = true;
         wordCount += 1;
         print("DEBUG: Word completed, wordCount = $wordCount");
-
-        // Check if the user has won (guessed maxWordsToWin words)
         if (wordCount >= maxWordsToWin) {
           print("DEBUG: User won, awarding 10 coins and showing WinnerDialog");
-          _awardCoins(10); // Award 10 coins
+          _awardCoins(10);
           WidgetsBinding.instance.addPostFrameCallback((_) {
             WinnerDialog.show(
               context,
@@ -313,7 +327,7 @@ class _GameScreenState extends State<GameScreen> {
               onExit: () {
                 print("DEBUG: Home pressed");
                 returnHomePage();
-
+                Navigator.pop(context);
               },
             );
           });
@@ -351,7 +365,7 @@ class _GameScreenState extends State<GameScreen> {
               child: Image.asset(
                 'assets/images/$hangState.png',
                 fit: BoxFit.contain,
-                height: 300, // Reduced height to avoid overlap
+                height: 300,
                 gaplessPlayback: true,
               ),
             ),
@@ -363,57 +377,44 @@ class _GameScreenState extends State<GameScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        // Row(
-                        //   children: <Widget>[
-                        //     SizedBox(
-                        //       child: IconButton(
-                        //         tooltip: 'Hint',
-                        //         iconSize: 39,
-                        //         icon: Icon(MdiIcons.lightbulb),
-                        //         highlightColor: Colors.transparent,
-                        //         splashColor: Colors.transparent,
-                        //         onPressed: hintStatus
-                        //             ? () {
-                        //           if (hintLetters.isNotEmpty) {
-                        //             int rand = Random().nextInt(hintLetters.length);
-                        //             wordPress(englishAlphabet.alphabet
-                        //                 .indexOf(wordList[hintLetters[rand]]));
-                        //             hintStatus = false;
-                        //           }
-                        //         }
-                        //             : null,
-                        //       ),
-                        //     ),
-                        //   ],
-                        // ),
                         Stack(
+                          clipBehavior: Clip.none,
                           children: [
-                            Align(
-                              alignment: Alignment.bottomLeft,
-                              child: Image.asset("assets/images/clock.png"),
-                            ),
+                            // Background pill container with timer
                             Container(
                               height: 43,
                               width: 110,
-                              decoration:  BoxDecoration(
-                                color: Color.fromRGBO(0, 0, 0, 0.25),
+                              decoration: BoxDecoration(
+                                color: const Color.fromRGBO(0, 0, 0, 0.25),
                                 borderRadius: BorderRadius.circular(50),
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 7),
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    textAlign: TextAlign.center,
-                                    _formatTimer(seconds),
-                                    style: const TextStyle(
-                                      fontFamily: 'Fredoka',
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 19,
-                                      color: Colors.white,
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 40), // leave space for the clock
+                                  Expanded(
+                                    child: Text(
+                                      _formatTimer(seconds),
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontFamily: 'Fredoka',
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 19,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
-                                ),
+                                ],
+                              ),
+                            ),
+
+                            // Positioned clock image on the left side, overlapping
+                            Positioned(
+                              left: 0,
+                              top: 0,
+                              child: Image.asset(
+                                "assets/images/clock.png",
+                                height: 48,
+                                width: 48,
                               ),
                             ),
                           ],
@@ -421,8 +422,17 @@ class _GameScreenState extends State<GameScreen> {
                         GestureDetector(
                           onTap: () {
                             print("DEBUG: Pause button pressed");
+                            setState(() {
+                              isPaused = true; // Pause timer
+                            });
                             PauseDialog.show(
                               context,
+                              onResume: () {
+                                print("DEBUG: Resume pressed from PauseDialog");
+                                setState(() {
+                                  isPaused = false; // Resume timer
+                                });
+                              },
                               onRetry: () {
                                 print("DEBUG: Retry pressed from PauseDialog");
                                 newGame();
@@ -433,10 +443,10 @@ class _GameScreenState extends State<GameScreen> {
                               },
                             );
                           },
-                          child: SizedBox(
+                          child:  SizedBox(
                             width: 55,
                             height: 55,
-                            child: Image.asset('assets/images/pause_button.png'),
+                            child: Image.asset("assets/images/pause_button.png"),
                           ),
                         ),
                       ],

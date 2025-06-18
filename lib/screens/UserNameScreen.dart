@@ -37,7 +37,7 @@ class _UsernamescreenState extends State<Usernamescreen> {
         'userId': userId,
         'username': username,
         'difficulty': 'beginner', // default
-        'category': 'general knowledge', // default
+        'category': 'tech_and_creativity', // default
         'coins':0,
       });
 

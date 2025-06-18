@@ -18,7 +18,7 @@ class WordButton extends StatelessWidget {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         elevation: 3.0,
-        backgroundColor: isEnabled ? const Color(0xFF1C5E72) : Colors.grey[400],
+        backgroundColor: isEnabled ? const Color(0xFF1C5E72) : Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(4),
         ),
@@ -29,11 +29,11 @@ class WordButton extends StatelessWidget {
       child: Text(
         buttonTitle,
         textAlign: TextAlign.center,
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'SFProText',
           fontSize: 22,
           fontWeight: FontWeight.w400,
-          color: Colors.white,
+          color: isEnabled ? Colors.white:Colors.transparent,
         ),
       ),
     );

@@ -42,7 +42,7 @@ class _WordscueLevelScreenState extends State<WordscueLevelScreen> {
                     height: 100,
                   ),
 
-                  SizedBox(height: 50),
+                  SizedBox(height:MediaQuery.of(context).size.height>900?80: 50),
 
                   // Black background behind buttons
                   Stack(

@@ -132,7 +132,7 @@ class MainApp extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        scaffoldBackgroundColor: const Color(0xFF421b9b),
+
         textTheme: Theme.of(context).textTheme.apply(fontFamily: 'PatrickHand'),
       ),
 

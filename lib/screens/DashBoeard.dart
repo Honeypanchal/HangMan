@@ -40,8 +40,8 @@ class _DashboeardState extends State<Dashboard> {
 
               // wordscue image at top center
 
+              SizedBox(height:MediaQuery.of(context).size.height>900?80: 50),
 
-              const SizedBox(height: 50),
 
               // Main frosted container
               Center(
