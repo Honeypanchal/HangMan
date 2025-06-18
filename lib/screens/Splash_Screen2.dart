@@ -12,7 +12,7 @@ class StartScreen extends StatefulWidget {
   State<StartScreen> createState() => _StartScreenState();
 }
 
-class _StartScreenState extends State<StartScreen>  with WidgetsBindingObserver   {
+class _StartScreenState extends State<StartScreen> with WidgetsBindingObserver {
   final audioManager = AudioManager();
 
   @override
@@ -20,21 +20,24 @@ class _StartScreenState extends State<StartScreen>  with WidgetsBindingObserver 
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
+    // Initialize audio and play background music
     audioManager.init().then((_) {
+      print("✅ AudioManager initialized in StartScreen");
       audioManager.playBackgroundMusic();
     });
-    // Wait 2 seconds and then decide which screen to go to
+
+    // Navigate after 2 seconds
     Future.delayed(const Duration(seconds: 2), () {
       final currentUser = FirebaseAuth.instance.currentUser;
 
       if (currentUser != null) {
-        // User already signed in → Go to Dashboard
+        // User signed in → Dashboard
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const Dashboard()),
         );
       } else {
-        // User not signed in → Go to Username Screen
+        // Not signed in → Username screen
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const Usernamescreen()),
@@ -42,7 +45,6 @@ class _StartScreenState extends State<StartScreen>  with WidgetsBindingObserver 
       }
     });
   }
-
 
   @override
   void dispose() {
@@ -53,14 +55,12 @@ class _StartScreenState extends State<StartScreen>  with WidgetsBindingObserver 
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.detached) {
-      audioManager.pauseBackgroundMusic(); // Pause when leaving
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      audioManager.pauseBackgroundMusic();
     } else if (state == AppLifecycleState.resumed) {
-      audioManager.playBackgroundMusic(); // Resume when returning
+      audioManager.playBackgroundMusic();
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

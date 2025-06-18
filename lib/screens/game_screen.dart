@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hangman/components/AudioManager.dart';
 import 'package:flutter_hangman/components/word_button.dart';
 import 'package:flutter_hangman/screens/DashBoeard.dart';
 import 'package:flutter_hangman/screens/home_screen.dart';
@@ -200,6 +201,7 @@ class _GameScreenState extends State<GameScreen> {
             score_database.manipulateDatabase(score);
           }
           WidgetsBinding.instance.addPostFrameCallback((_) {
+            AudioManager().playloseSound();
             GameOverDialog.show(
               context,
               onRetry: () {
@@ -229,6 +231,7 @@ class _GameScreenState extends State<GameScreen> {
           print("DEBUG: User won, awarding 10 coins and showing WinnerDialog");
           _awardCoins(10); // Award 10 coins
           WidgetsBinding.instance.addPostFrameCallback((_) {
+            AudioManager().playwinSound();
             WinnerDialog.show(
               context,
               onRetry: () {

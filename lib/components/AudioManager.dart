@@ -67,7 +67,7 @@ class AudioManager {
   }
   Future<void> playbuttonSound() async {
     await pauseBackgroundMusic();
-    print("🔪 Playing button sound with volume: $_soundEffectsVolume...");
+    print(" Playing button sound with volume: $_soundEffectsVolume...");
     await _soundEffectsPlayer.setVolume(_soundEffectsVolume);
     await _soundEffectsPlayer.play(
       AssetSource('audio/tap on button.mp3'),

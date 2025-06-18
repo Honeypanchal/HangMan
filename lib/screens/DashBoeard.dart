@@ -4,6 +4,7 @@ import 'package:flutter_hangman/screens/CateGoriesScreen.dart';
 import 'package:flutter_hangman/screens/LeaderBoard.dart';
 import 'package:flutter_hangman/screens/LevalScreen.dart';
 
+import '../components/AudioManager.dart';
 import 'DailyRewardScreen.dart';
 
 class Dashboard extends StatefulWidget {
@@ -14,6 +15,10 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboeardState extends State<Dashboard> {
+  void PlayClickSound()
+  {
+    AudioManager().playbuttonSound();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,13 +62,16 @@ class _DashboeardState extends State<Dashboard> {
                     children: [
                       GestureDetector(
                         onTap: () {
+                          PlayClickSound();
                           Navigator.push(context, MaterialPageRoute(builder: (context) => WordscueLevelScreen()));
                         },
+
                         child: Image.asset('assets/images/play_button.png', height: 60),
                       ),
                       const SizedBox(height: 15),
                       GestureDetector(
                         onTap: () {
+                          PlayClickSound();
                           Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen()));
                         },
                         child: Image.asset('assets/images/Settings.png', height: 60),
@@ -71,6 +79,7 @@ class _DashboeardState extends State<Dashboard> {
                       const SizedBox(height: 15),
                       GestureDetector(
                         onTap: () {
+                          PlayClickSound();
                           Navigator.push(context, MaterialPageRoute(builder: (context) => LeaderBoard()));
                         },
                         child: Image.asset('assets/images/Leader_Board.png', height: 60),
@@ -78,6 +87,7 @@ class _DashboeardState extends State<Dashboard> {
                       const SizedBox(height: 15),
                       GestureDetector(
                         onTap: () {
+                          PlayClickSound();
                           Navigator.push(context, MaterialPageRoute(builder: (context) => DailyRewardPage()));
                         },
                         child: Image.asset('assets/images/Daily_Reward.png', height: 60),
@@ -85,6 +95,7 @@ class _DashboeardState extends State<Dashboard> {
                       const SizedBox(height: 15),
                       GestureDetector(
                         onTap: () {
+                          PlayClickSound();
                           Navigator.push(context, MaterialPageRoute(builder: (context) => CategoriesScreen()));
                         },
                         child: Image.asset('assets/images/Catagories.png', height: 60),
