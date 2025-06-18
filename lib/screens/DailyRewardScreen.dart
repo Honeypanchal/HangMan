@@ -506,7 +506,7 @@ class _DailyRewardPageState extends State<DailyRewardPage> {
     );
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: isDay7 ? 8 : 0),
+      padding: EdgeInsets.symmetric(horizontal: isDay7 ? 1: 0),
       child: isToday
           ? GestureDetector(
         onTap: () {
@@ -560,7 +560,7 @@ class _DailyRewardPageState extends State<DailyRewardPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                          padding: const EdgeInsets.symmetric(vertical: 5.0),
                           child: buildRewardItem(6), // Day 7
                         ),
                       ],
