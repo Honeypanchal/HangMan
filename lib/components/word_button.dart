@@ -17,7 +17,7 @@ class WordButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        elevation: 3.0,
+        elevation: isEnabled?3.0:0,
         backgroundColor: isEnabled ? const Color(0xFF1C5E72) : Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(4),

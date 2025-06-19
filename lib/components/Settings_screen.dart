@@ -12,7 +12,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool isMusicOn = true;
-  bool isTimerOn = false;
+  bool isTimerOn = true;
 
   @override
   void initState() {

@@ -6,13 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hangman/components/AudioManager.dart';
 import 'package:flutter_hangman/components/word_button.dart';
 import 'package:flutter_hangman/screens/DashBoeard.dart';
-import 'package:flutter_hangman/screens/home_screen.dart';
 import 'package:flutter_hangman/utilities/alphabet.dart';
 import 'package:flutter_hangman/utilities/constants.dart';
 import 'package:flutter_hangman/utilities/hangman_words.dart';
 import 'package:flutter_hangman/utilities/score_db.dart' as score_database;
 import 'package:flutter_hangman/utilities/user_scores.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import '../utilities/word_loader.dart';
 import '../components/DialogueBox.dart';
 
@@ -329,8 +327,10 @@ class _GameScreenState extends State<GameScreen> {
               },
               onExit: () {
                 print("DEBUG: Home pressed");
-                returnHomePage();
-                Navigator.pop(context);
+               Navigator.push(context,
+                   MaterialPageRoute(builder: (context)=>const
+                   Dashboard()));
+
               },
             );
           });

@@ -276,6 +276,7 @@
 //   }
 // }
 import 'package:flutter/material.dart';
+import 'package:flutter_hangman/screens/DashBoeard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -568,6 +569,16 @@ class _DailyRewardPageState extends State<DailyRewardPage> {
                   ],
                 )
               ],
+            ),
+          ),
+          Positioned(
+            top: 235,
+            right: 15,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Dashboard()));
+              },
+              child: Image.asset('assets/images/close_icon.png'),
             ),
           ),
         ],

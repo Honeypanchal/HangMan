@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hangman/screens/DashBoeard.dart';
 import 'package:flutter_hangman/screens/Splash_Screen1.dart';
-import 'package:flutter_hangman/screens/home_screen.dart';
 import 'package:flutter_hangman/screens/score_screen.dart';
 import 'package:flutter_hangman/utilities/constants.dart';
 import 'package:flutter/foundation.dart';
@@ -48,50 +47,53 @@ void main() async {
 Future<void> uploadWordsToFirebase() async {
   final dbRef = FirebaseDatabase.instance.ref();
 
-  Map<String, Map<String, List<String>>> wordData = {
+  Map<String, Map<String, List<String>>> wordData =
+  {
     'beginner': {
-      'gk': ["apple", "tree", "book", "pen", "clock", "sun", "rain", "map", "bus", "hat"],
-      'science_and_nature': ["sun", "leaf", "atom", "plant", "rock", "wind", "snow", "water", "fire", "moon"],
-      'history_and_politics': ["war", "king", "map", "law", "vote", "flag", "rule", "deed", "era", "code"],
-      'sports_and_games': ["ball", "goal", "race", "run", "jump", "game", "team", "bat", "win", "play"],
-      'geography_and_travel': ["hill", "river", "map", "road", "trip", "camp", "path", "city", "rail", "tent"],
-      'music_and_pop_culture': ["song", "note", "beat", "band", "pop", "rap", "hit", "fan", "star", "rock"],
-      'movies_and_tv_shows': ["film", "hero", "plot", "cast", "clip", "show", "set", "take", "reel", "edit"],
-      'literature_and_books': ["book", "poem", "page", "line", "read", "text", "pen", "plot", "title", "write"],
-      'tech_and_creativity': ["code", "app", "idea", "bot", "web", "tech", "tool", "game", "hack", "site"],
+      'gk': ["quiz", "lynx", "grip", "twig", "myth", "brim", "scrub", "clump", "flint", "brawn"],
+      'science_and_nature': ["smog", "bark", "grub", "clod", "sprig", "glow", "crust", "flask", "drift", "silt"],
+      'history_and_politics':
+      ["flag", "coup", "deed", "law", "helm",
+        "clan", "plot", "vow", "realm", "oath"],
+      'sports_and_games': ["grip", "vault", "puck", "judo", "track", "blitz", "toss", "jump", "dunk", "dash"],
+      'geography_and_travel': ["ridge", "trail", "fjord", "camp", "cliff", "path", "crag", "glade", "brook", "bluff"],
+      'music_and_pop_culture': ["pop", "jam", "hymn", "riff", "drum", "bass", "loop", "note", "beat", "song"],
+      'movies_and_tv_shows': ["clip", "zoom", "grim", "prop", "cut", "take", "edit", "cast", "plot", "set"],
+      'literature_and_books': ["text", "line", "book", "read", "plot", "pen", "note", "page", "word", "tale"],
+      'tech_and_creativity': ["code", "bot", "ping", "web", "hack", "site", "link", "tool", "bit", "data"],
     },
     'easy': {
-      'gk': ["nation", "leader", "globe", "region", "country", "capital", "event", "world", "news", "speech"],
-      'science_and_nature': ["energy", "planet", "animal", "object", "earth", "system", "light", "force", "metal", "air"],
-      'history_and_politics': ["empire", "battle", "revolt", "speech", "freedom", "civil", "council", "rule", "leader", "allies"],
-      'sports_and_games': ["tennis", "cricket", "athlete", "match", "score", "striker", "referee", "medal", "field", "coach"],
-      'geography_and_travel': ["valley", "desert", "island", "forest", "ocean", "border", "coast", "travel", "trip", "bridge"],
-      'music_and_pop_culture': ["guitar", "rhythm", "melody", "lyrics", "tune", "chorus", "solo", "drums", "beats", "harmony"],
-      'movies_and_tv_shows': ["cinema", "screen", "script", "acting", "camera", "director", "comedy", "scene", "ending", "actor"],
-      'literature_and_books': ["novel", "story", "poetry", "verse", "fiction", "author", "chapter", "reader", "genre", "library"],
-      'tech_and_creativity': ["robot", "design", "gadget", "device", "media", "logic", "graphic", "input", "output", "system"],
+      'gk': ["crest", "badge", "globe", "realm", "chart", "bluff", "prong", "stunt", "plumb", "trunk"],
+      'science_and_nature': ["plant", "cliff", "drift", "flint", "cloud", "bloom", "stone", "smoke", "flask", "spore"],
+      'history_and_politics': ["council", "speech", "troops", "empire", "ruling", "edict", "banner", "summon", "scribe", "throne"],
+      'sports_and_games': ["striker", "vault", "rally", "tackle", "crunch", "tennis", "match", "jockey", "skater", "paddle"],
+      'geography_and_travel': ["summit", "island", "travel", "cliffs", "border", "valley", "terrain", "bridge", "hills", "coast"],
+      'music_and_pop_culture': ["lyrics", "beats", "chorus", "solo", "hymnal", "concert", "note", "jammer", "guitar", "remix"],
+      'movies_and_tv_shows': ["screen", "acting", "ending", "cinema", "script", "comedy", "scene", "trailer", "dialog", "actor"],
+      'literature_and_books': ["author", "reader", "chapter", "fiction", "library", "story", "volume", "poetry", "tale", "essay"],
+      'tech_and_creativity': ["widget", "binary", "device", "prompt", "system", "plugin", "output", "upload", "script", "module"],
     },
     'medium': {
-      'gk': ["constitution", "democracy", "election", "assembly", "republic", "citizen", "governance", "ballot", "policy", "reform"],
-      'science_and_nature': ["photosynthesis", "gravity", "molecule", "reaction", "eclipse", "genetics", "ecosystem", "volcano", "climate", "experiment"],
-      'history_and_politics': ["renaissance", "independence", "revolution", "treaty", "dynasty", "uprising", "military", "colony", "campaign", "conflict"],
-      'sports_and_games': ["tournament", "championship", "olympics", "athletics", "competition", "equipment", "strategies", "ranking", "league", "finale"],
-      'geography_and_travel': ["continent", "equator", "longitude", "hemisphere", "topography", "altitude", "itinerary", "latitude", "cartography", "glacier"],
-      'music_and_pop_culture': ["symphony", "orchestra", "composer", "concert", "playlist", "grammy", "microphone", "festival", "genre", "harmonica"],
-      'movies_and_tv_shows': ["blockbuster", "narrative", "animation", "cinematography", "sequel", "dialogue", "premiere", "villain", "musical", "genre"],
-      'literature_and_books': ["manuscript", "bibliography", "metaphor", "protagonist", "plotline", "narrative", "context", "dialogue", "fable", "critique"],
-      'tech_and_creativity': ["interface", "algorithm", "innovation", "prototype", "rendering", "virtual", "framework", "compiler", "databases", "protocol"],
+      'gk': ["ballot", "verdict", "govern", "reform", "citizen", "pledge", "justice", "notion", "mandate", "resolve"],
+      'science_and_nature': ["gravity", "climate", "volcano", "reaction", "protein", "molecule", "weather", "biology", "element", "erosion"],
+      'history_and_politics': ["treaty", "revolt", "freedom", "dynasty", "colony", "uprising", "edict", "campaign", "tribunal", "doctrine"],
+      'sports_and_games': ["champion", "ranking", "rebound", "athletics", "tourney", "stadium", "dribble", "scoring", "equipment", "defense"],
+      'geography_and_travel': ["province", "longitude", "latitude", "summit", "terrain", "volcano", "glacier", "coastal", "elevation", "region"],
+      'music_and_pop_culture': ["symphony", "playlist", "composer", "festival", "concert", "lyrical", "choruses", "notated", "backbeat", "melodic"],
+      'movies_and_tv_shows': ["animation", "premiere", "narrative", "dialogue", "director", "cinematic", "sequence", "actoring", "editing", "subplot"],
+      'literature_and_books': ["fable", "prologue", "manuscript", "narrative", "symbolic", "contextual", "passages", "dialogue", "lexicon", "essays"],
+      'tech_and_creativity': ["compiler", "protocol", "framework", "interface", "debugger", "backend", "database", "frontend", "algorithm", "concepts"],
     },
     'hard': {
-      'gk': ["philosophy", "metaphysics", "anthropology", "epistemology", "existentialism", "sociology", "dialectics", "parliament", "jurisprudence", "pluralism"],
-      'science_and_nature': ["electromagnetism", "neuroscience", "crystallography", "metabolism", "chromatography", "microbiology", "radiochemistry", "biomechanics", "quantum", "astronomy"],
-      'history_and_politics': ["byzantine", "industrialization", "colonialism", "aristocracy", "imperialism", "federalism", "enlightenment", "sovereignty", "treatises", "inquisition"],
-      'sports_and_games': ["triathlon", "gymnastics", "equestrian", "pentathlon", "freestyle", "decathlon", "synchronized", "badminton", "strategy", "precision"],
-      'geography_and_travel': ["archipelago", "cartography", "topography", "geopolitics", "demography", "hydrology", "biogeography", "tectonic", "latitude", "terrain"],
-      'music_and_pop_culture': ["counterpoint", "improvisation", "polyphony", "avantgarde", "concerto", "ethnomusicology", "pitchfork", "multitrack", "autotune", "synesthesia"],
-      'movies_and_tv_shows': ["cinematography", "characterization", "adaptation", "screenwriting", "documentary", "foreshadowing", "postproduction", "anthology", "reminiscence", "subplot"],
-      'literature_and_books': ["intertextuality", "bildungsroman", "postmodernism", "satirical", "monologue", "semantics", "dialectical", "persona", "allegory", "synecdoche"],
-      'tech_and_creativity': ["cryptography", "machinelearning", "augmentedreality", "neuralnetworks", "computervision", "blockchain", "cybersecurity", "internetofthings", "quantumcomputing", "datamining"],
+      'gk': ["pluralism", "jurisdict", "sovereign", "diplomacy", "amendment", "manifesto", "republics", "legislate", "democracy", "principle"],
+      'science_and_nature': ["organisms", "genetics", "reaction", "radioactive", "photosynth", "biomass", "spectrums", "enzymatic", "radiation", "neutrinos"],
+      'history_and_politics': ["aristocrat", "enlighten", "propaganda", "emancipate", "constitution", "revolution", "colonized", "treatises", "federalism", "inquisition"],
+      'sports_and_games': ["triathlon", "strategist", "precision", "gymnastic", "scrimmage", "freestyle", "champions", "synchronized", "reflexive", "tactician"],
+      'geography_and_travel': ["archipelago", "cartograph", "topography", "altimeter", "hydrology", "tectonics", "demography", "landscape", "elevation", "geopolitics"],
+      'music_and_pop_culture': ["polyphony", "syncopate", "orchestra", "notation", "dissonant", "audiogram", "conducted", "discograph", "multitrack", "resonance"],
+      'movies_and_tv_shows': ["adaptation", "cinematics", "foreshadow", "subtitles", "characterize", "animation", "tragedian", "reminiscence", "screenplay", "narratives"],
+      'literature_and_books': ["satirical", "metaphors", "protagonist", "postmodern", "allegoric", "intertext", "symbolism", "persona", "lexicology", "narrative"],
+      'tech_and_creativity': ["encryption", "blockchain", "interface", "cybernetic", "framework", "neuralnet", "algorithm", "protocol", "compiler", "debugging"],
     },
   };
 
