@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hangman/screens/Splash_Screen2.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter/foundation.dart';
 
 
 class SplashScreen extends StatefulWidget {
@@ -11,38 +12,38 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  late VideoPlayerController _controller;
-  bool _navigated = false; // ✅ Add this line
+  late VideoPlayerController _videoController;
 
   @override
   void initState() {
     super.initState();
 
-    _controller = VideoPlayerController.asset("assets/audio/Splash_screen.mp4")
-      ..initialize().then((_) {
-        setState(() {});
-        _controller.play();
+    _videoController = kIsWeb
+        ? VideoPlayerController.networkUrl(
+        Uri.parse('assets/audio/Splash_screen.mp4')) // For web
+        : VideoPlayerController.asset(
+        'assets/audio/Splash_screen.mp4'); // For mobile
+
+    _videoController.initialize().then((_) {
+      setState(() {});
+      _videoController.play();
+
+      _videoController.addListener(() {
+        if (_videoController.value.position >=
+            _videoController.value.duration &&
+            !_videoController.value.isPlaying) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => StartScreen()),
+          );
+        }
       });
-
-    _controller.setLooping(false);
-    _controller.setVolume(1.0);
-
-    _controller.addListener(() {
-      if (!_navigated && _controller.value.position >= _controller.value.duration) {
-        _navigated = true;
-
-        // ✅ Initialize HomeController to trigger background music
-
-
-        Future.delayed(Duration(milliseconds: 200), () {
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>StartScreen()));        });
-      }
     });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _videoController.dispose();
     super.dispose();
   }
 
@@ -50,17 +51,20 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: _controller.value.isInitialized
-          ? FittedBox(
-        fit: BoxFit.fill,
-        child: SizedBox(
-          width: _controller.value.size.width,
-          height: _controller.value.size.height,
-          child: VideoPlayer(_controller),
-        ),
-      )
-          : const Center(child: CircularProgressIndicator()),
+      body: FutureBuilder(
+        future: _videoController.initialize(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            _videoController.play();
+            return AspectRatio(
+              aspectRatio: _videoController.value.aspectRatio,
+              child: VideoPlayer(_videoController),
+            );
+          } else {
+            return const Center(child: CircularProgressIndicator());
+          }
+        },
+      ),
     );
   }
 }
-
