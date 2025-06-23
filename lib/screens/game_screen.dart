@@ -21,7 +21,7 @@ class GameScreen extends StatefulWidget {
   State<GameScreen> createState() => _GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   late HangmanWords hangmanObject;
   bool isLoading = true;
   String? errorMessage;
@@ -39,6 +39,7 @@ class _GameScreenState extends State<GameScreen> {
   bool finishedGame = false;
   bool resetGame = false;
   final int maxWordsToWin = 8;
+  bool isMusicOn = true; // default to true
 
   // Timer variables
   bool isTimerOn = false;
@@ -49,12 +50,22 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
     hintStatus = true;
     buttonStatus = List.generate(26, (_) => true);
+
     print("DEBUG: initState called, lives = $lives");
+
+    AudioManager().init().then((_) {
+      print("✅ AudioManager initialized and music started");
+      print("✅ AudioManager initialized and music started");
+      if (isMusicOn) AudioManager().playBackgroundMusic();
+    });
     _loadSettings();
     _loadWordsFromFirebase();
   }
+
   Future<void> _loadWordsFromFirebase() async {
     try {
       final words = await fetchWordsFromFirebase();
@@ -81,8 +92,34 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print("📲 Lifecycle changed: $state");
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) {
+      print("⏹ Paused/Inactivated – trying to stop audio now");
+      AudioManager().forceStopAllAudio();
+    }
+  }
+
+
+  void _pauseGame() {
+    print("⏸️ Pausing game logic");
+    isPaused = true;
+    _timer?.cancel();
+  }
+
+  void _cleanup() {
+    print("🧹 Cleaning up game resources");
+    _timer?.cancel();
+    AudioManager().dispose(); // Stop and dispose audio
+  }
+
+  @override
   void dispose() {
     _timer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    _cleanup(); // Ensure cleanup on widget dispose
     super.dispose();
   }
 
@@ -204,6 +241,7 @@ class _GameScreenState extends State<GameScreen> {
   void returnHomePage() {
     print("DEBUG: Navigating to Dashboard, current route: ${ModalRoute.of(context)?.settings.name}");
     _timer?.cancel(); // Stop timer on exit
+    _cleanup(); // Clean up audio and resources
     try {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const Dashboard()));
     } catch (e) {
@@ -327,10 +365,8 @@ class _GameScreenState extends State<GameScreen> {
               },
               onExit: () {
                 print("DEBUG: Home pressed");
-               Navigator.push(context,
-                   MaterialPageRoute(builder: (context)=>const
-                   Dashboard()));
-
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const Dashboard()));
               },
             );
           });
@@ -350,6 +386,11 @@ class _GameScreenState extends State<GameScreen> {
     }
     return PopScope(
       canPop: false,
+      onPopInvoked: (didPop) {
+        if (!didPop) {
+          _cleanup(); // Clean up on back press attempt
+        }
+      },
       child: Scaffold(
         body: Stack(
           children: [
@@ -409,7 +450,6 @@ class _GameScreenState extends State<GameScreen> {
                                 ],
                               ),
                             ),
-
                             // Positioned clock image on the left side, overlapping
                             Positioned(
                               left: 0,
@@ -446,7 +486,7 @@ class _GameScreenState extends State<GameScreen> {
                               },
                             );
                           },
-                          child:  SizedBox(
+                          child: SizedBox(
                             width: 55,
                             height: 55,
                             child: Image.asset("assets/images/pause_button.png"),

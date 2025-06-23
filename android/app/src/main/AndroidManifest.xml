@@ -3,6 +3,8 @@
         android:label="WordScue"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true"
+        android:foregroundServiceType="mediaPlayback"
         >
         <activity
             android:name=".MainActivity"

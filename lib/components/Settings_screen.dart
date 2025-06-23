@@ -3,6 +3,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hangman/screens/DashBoeard.dart';
 
+import 'AudioManager.dart';
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -28,10 +30,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
             .ref('users/${user.uid}/settings')
             .get();
         final data = snapshot.value as Map<dynamic, dynamic>?;
+
         setState(() {
           isTimerOn = data?['timerOn'] as bool? ?? false;
           isMusicOn = data?['musicOn'] as bool? ?? true;
         });
+
+        await AudioManager().init();
+
+        if (isMusicOn) {
+          await AudioManager().playBackgroundMusic();
+        } else {
+          await AudioManager().pauseBackgroundMusic();
+        }
+        AudioManager().setMusicEnabled(isMusicOn);
       } catch (e) {
         print("DEBUG: Error loading settings: $e");
       }
@@ -125,12 +137,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   scale: 0.8,
                                   child: Switch(
                                     value: isMusicOn,
-                                    onChanged: (val) {
+                                    onChanged: (val) async {
                                       setState(() {
                                         isMusicOn = val;
                                       });
                                       _saveSettings('musicOn', val);
+                                      AudioManager().setMusicEnabled(val); // ✅ This line is new
+
+
+                                      if (val) {
+                                        await AudioManager().playBackgroundMusic();
+                                      } else {
+                                        await AudioManager().pauseBackgroundMusic();
+                                      }
                                     },
+
                                     activeColor: Colors.white,
                                     activeTrackColor: const Color.fromRGBO(194, 97, 0, 1),
                                     inactiveThumbColor: Colors.white,

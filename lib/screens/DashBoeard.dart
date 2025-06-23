@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hangman/components/Settings_screen.dart';
 import 'package:flutter_hangman/screens/CateGoriesScreen.dart';
@@ -14,11 +15,49 @@ class Dashboard extends StatefulWidget {
   State<Dashboard> createState() => _DashboeardState();
 }
 
-class _DashboeardState extends State<Dashboard> {
+class _DashboeardState extends State<Dashboard> with WidgetsBindingObserver {
+  final AudioPlayer _bgPlayer = AudioPlayer();
+  bool isPlaying =false;
   void PlayClickSound()
   {
     AudioManager().playbuttonSound();
   }
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _playMusic();
+  }
+
+  void _playMusic() async {
+    await _bgPlayer.setReleaseMode(ReleaseMode.loop);
+    await _bgPlayer.play(AssetSource('audio/BG_Hangman_Game.mp3'));
+    isPlaying = true;
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _bgPlayer.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      // App backgrounded or locked
+      _bgPlayer.pause();
+    } else if (state == AppLifecycleState.resumed) {
+      // App foregrounded again
+      if (!isPlaying) {
+        _playMusic();
+      } else {
+        _bgPlayer.resume();
+      }
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

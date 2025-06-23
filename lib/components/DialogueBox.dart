@@ -60,6 +60,7 @@ class GameOverDialog {
           backgroundColor: Colors.transparent,
           insetPadding: const EdgeInsets.all(16),
           child: Stack(
+            clipBehavior: Clip.none,
             children: [
               Container(
                 height: 330,
@@ -100,8 +101,8 @@ class GameOverDialog {
                 ),
               ),
               Positioned(
-                top: 8,
-                right: 8,
+                top: -5,
+                right: 5,
                 child: GestureDetector(
                   onTap: () {
                     Navigator.of(context).pop();
