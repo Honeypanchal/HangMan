@@ -11,6 +11,7 @@ import 'package:flutter_hangman/utilities/constants.dart';
 import 'package:flutter_hangman/utilities/hangman_words.dart';
 import 'package:flutter_hangman/utilities/score_db.dart' as score_database;
 import 'package:flutter_hangman/utilities/user_scores.dart';
+import '../utilities/hangman_ai.dart';
 import '../utilities/word_loader.dart';
 import '../components/DialogueBox.dart';
 
@@ -40,6 +41,13 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
   bool resetGame = false;
   final int maxWordsToWin = 8;
   bool isMusicOn = true; // default to true
+// AI fields
+  late HangmanAI ai;
+  String? aiSuggested;      // e.g. "E"
+  int aiNodes = 0;
+  int aiPruned = 0;
+  int aiCandidates = 0;
+  bool aiEnabled = true;    // Suggestion mode toggle (optional)
 
   // Timer variables
   bool isTimerOn = false;
@@ -70,6 +78,10 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     try {
       final words = await fetchWordsFromFirebase();
       hangmanObject = HangmanWords(words);
+      // Prepare AI with current pool (lowercase)
+      final pool = hangmanObject.allWords.map((w) => w.toLowerCase()).toList();
+      ai = HangmanAI(pool, maxDepth: 2); // depth 2 is safe & fast
+
       initWords();
       setState(() {
         isLoading = false;
@@ -83,6 +95,35 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
       });
     }
   }
+  Set<String> _currentGuessedLetters() {
+    final s = <String>{};
+    for (int i = 0; i < 26; i++) {
+      if (!buttonStatus[i]) s.add(englishAlphabet.alphabet[i]); // already guessed
+    }
+    return s;
+  }
+
+  int _remainingWrongGuesses() {
+    // You lose when hangState == 6 in your code
+    return (6 - hangState).clamp(0, 6);
+  }
+  void _recomputeAISuggestion() {
+    if (!aiEnabled || isLoading || errorMessage != null) return;
+
+    final suggestion = ai.suggest(
+      pattern: hiddenWord.toLowerCase().replaceAll(' ', ''),
+      guessed: _currentGuessedLetters(),
+      remainingWrongGuesses: _remainingWrongGuesses(),
+    );
+
+    setState(() {
+      aiSuggested = suggestion.letter; // already uppercase
+      aiNodes = suggestion.nodesVisited;
+      aiPruned = suggestion.branchesPruned;
+      aiCandidates = suggestion.candidateCount;
+    });
+  }
+
 
   @override
   void didChangeDependencies() {
@@ -261,6 +302,7 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
     seconds = isTimerOn ? 300 : 0; // Reset timer
     _startTimer();
 
+
     final newWord = hangmanObject.getWord();
     if (newWord == null || newWord.isEmpty) {
       setState(() {
@@ -271,6 +313,8 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
 
     word = newWord;
     hiddenWord = hangmanObject.getHiddenWord(word.length);
+    _recomputeAISuggestion();
+
 
     for (int i = 0; i < word.length; i++) {
       wordList.add(word[i]);
@@ -462,36 +506,97 @@ class _GameScreenState extends State<GameScreen> with WidgetsBindingObserver {
                             ),
                           ],
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            print("DEBUG: Pause button pressed");
-                            setState(() {
-                              isPaused = true; // Pause timer
-                            });
-                            PauseDialog.show(
-                              context,
-                              onResume: () {
-                                print("DEBUG: Resume pressed from PauseDialog");
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                print("DEBUG: Pause button pressed");
                                 setState(() {
-                                  isPaused = false; // Resume timer
+                                  isPaused = true; // Pause timer
                                 });
+                                PauseDialog.show(
+                                  context,
+                                  onResume: () {
+                                    print("DEBUG: Resume pressed from PauseDialog");
+                                    setState(() {
+                                      isPaused = false; // Resume timer
+                                    });
+                                  },
+                                  onRetry: () {
+                                    print("DEBUG: Retry pressed from PauseDialog");
+                                    newGame();
+                                  },
+                                  onExit: () {
+                                    print("DEBUG: Quit pressed from PauseDialog");
+                                    returnHomePage();
+                                  },
+                                );
                               },
-                              onRetry: () {
-                                print("DEBUG: Retry pressed from PauseDialog");
-                                newGame();
+                              child: SizedBox(
+                                width: 55,
+                                height: 55,
+                                child: Image.asset("assets/images/pause_button.png"),
+                              ),
+                            ),
+
+                            // GestureDetector(
+                            //   onTap: hintStatus
+                            //       ? () {
+                            //     int rand = Random()
+                            //         .nextInt(hintLetters.length);
+                            //     wordPress(englishAlphabet.alphabet
+                            //         .indexOf(
+                            //         wordList[hintLetters[rand]]));
+                            //     hintStatus = false;
+                            //   }
+                            //       : null,
+                            //   child:const Icon(
+                            //
+                            //     Icons.lightbulb,
+                            //
+                            //   ),
+                            // ),
+                            GestureDetector(
+                              onTap: () {
+                                // 1) Recompute to be safe
+                                _recomputeAISuggestion();
+                                // 2) If you want tap to auto-play suggestion, uncomment next lines:
+                                // if (aiSuggested != null) {
+                                //   final idx = englishAlphabet.alphabet.indexOf(aiSuggested!.toLowerCase());
+                                //   if (idx >= 0 && buttonStatus[idx]) {
+                                //     wordPress(idx);
+                                //   }
+                                // }
                               },
-                              onExit: () {
-                                print("DEBUG: Quit pressed from PauseDialog");
-                                returnHomePage();
-                              },
-                            );
-                          },
-                          child: SizedBox(
-                            width: 55,
-                            height: 55,
-                            child: Image.asset("assets/images/pause_button.png"),
-                          ),
-                        ),
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    width: 55,
+                                    height: 55,
+                                    child: Image.asset("assets/images/hint_bulb.png"), // use your bulb asset
+                                  ),
+                                  if (aiSuggested != null)
+                                    Text(
+                                      "AI: $aiSuggested",
+                                      style: const TextStyle(
+                                        fontFamily: 'Fredoka',
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+
+
+
+
+
+                          ],
+                        )
+
+
                       ],
                     ),
                   ),

@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hangman/components/CreateGameScreen.dart';
 import 'package:flutter_hangman/components/Settings_screen.dart';
 import 'package:flutter_hangman/screens/CateGoriesScreen.dart';
 import 'package:flutter_hangman/screens/LeaderBoard.dart';
@@ -139,6 +140,14 @@ class _DashboeardState extends State<Dashboard> with WidgetsBindingObserver {
                         },
                         child: Image.asset('assets/images/Catagories.png', height: 60),
                       ),
+                      // ElevatedButton(onPressed: (){
+                      //   Navigator.push(context, MaterialPageRoute(builder: (context)=>CreateGameScreen()));
+                      // }, child: Text("store data")),
+                      //   SizedBox(height: 10,),
+                      // ElevatedButton(onPressed: (){
+                      //   Navigator.push(context,
+                      //       MaterialPageRoute(builder: (context)=>JoinGameScreen()));
+                      // }, child: Text("invite link"))
                     ],
                   ),
 

@@ -1,20 +1,85 @@
-<img width="150" height="150" src="./res/documentation/icon.png" />
+Here's a professional GitHub README.md for your Wordscue - Hangman Game.
 
-# Hangman
-[![made-with-Markdown](https://img.shields.io/badge/Made%20with-Flutter-1389FD.svg)](http://flutter.dev)
+🧠 Wordscue – The Ultimate Hangman Experience
 
-A hangman game written in Dart with Flutter framework. Player has 5 lives in each turn. Previous scores can be viewed in High Scores page.
+Wordscue is a modern and engaging Hangman-style word guessing game built with Flutter and Firebase. Test your vocabulary, challenge yourself with multiple difficulty levels, earn rewards, compete on leaderboards, and enjoy an immersive gaming experience.
 
-## Screenshots
-<img src="./res/documentation/hangman_animation.gif" width="240" height="500" />
+📱 Download on Google Play
 
-<img align="center" width="350" src="./res/documentation/pre1.png"   ><img align="center" width="350" src="./res/documentation/pre2.png" hspace="50">
+🔗 Play Store Link:
+https://play.google.com/store/apps/details?id=com.ext.wordscue&hl=en_IN
 
-<img align="center" width="350"  src="./res/documentation/pre3.png"   ><img width="350" align="center" src="./res/documentation/pre4.png" hspace="50">
+🎮 Features
+🔐 Smart Authentication
+One-time login experience.
+User stays logged in after successful authentication.
+Automatically navigates to the Home Screen on subsequent app launches.
+🎯 Multiple Difficulty Levels
+
+Choose your preferred challenge level:
+
+Beginner
+Easy
+Medium
+Hard
+
+📚 9 Diverse Categories
+Explore words from different themes and improve your vocabulary:
+
+Animals
+Countries
+Food
+Movies
+And more...
+⏱️ Timer Mode
+
+Play your way:
+Enable a 5-minute timer for an exciting challenge.
+Disable the timer and enjoy unlimited thinking time.
+🎁 Daily Rewards
+Earn 10 coins every 24 hours.
+Use coins to unlock hints and improve your chances of winning.
+🏆 Global Leaderboard
+Compete with players worldwide.
+Climb the rankings by achieving high scores.
+Challenge your friends and track your progress.
+🎵 Sound Effects & Background Music
+Interactive sound effects.
+Engaging background music.
+Enhanced gaming experience.
+🎨 Beautiful UI/UX
+Modern Splash Screen.
+Clean and user-friendly interface.
+Smooth gameplay experience for all age groups.
+📈 Educational Benefits
+Improves vocabulary.
+Enhances spelling skills.
+Encourages learning through fun gameplay.
+
+🛠️ Built With
+Frontend
+Flutter
+Backend & Services
+Firebase Authentication
+Firebase Realtime Database
+State Management
 
 
-App screenshots created with <a href="https://previewed.app/">Previewed</a>
+# 📸 Screenshots
 
-## License
+## 🏠 Home Screen
+![Home Screen](assets/screenshots/HomeScreen.png)
 
-Released under MIT License. See [LICENSE](LICENSE) for more info.
+## 📂 Category Selection
+![Category Screen](assets/screenshots/CategoryScreen.png)
+
+
+## 🎮 Gameplay Screen 1
+![Gameplay Screen 1](assets/screenshots/GameScreen1.png)
+
+## 🎮 Gameplay Screen 2
+![Gameplay Screen 2](assets/screenshots/GameScreen2.png)
+
+## 🏆 Leaderboard
+![Leaderboard](assets/screenshots/LeaderBoard.png)
+

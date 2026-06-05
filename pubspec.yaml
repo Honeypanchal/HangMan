@@ -52,6 +52,7 @@ flutter:
     - res/
     - assets/audio/Splash_screen.mp4
     - assets/audio/
+    - assets/images/hint_bulb.png
     - assets/audio/BG_Hangman_Game.mp3
 #  fonts:
 #    - family: PatrickHand

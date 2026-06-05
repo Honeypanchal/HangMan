@@ -4,6 +4,9 @@ class HangmanWords {
   int wordCounter = 0;
   List<int> _usedNumbers = [];
   List<String> _words;
+  // inside HangmanWords class
+  List<String> get allWords => _words; // ensure these are lowercase
+
 
   HangmanWords(this._words); // Accept words list from Firebase
 
